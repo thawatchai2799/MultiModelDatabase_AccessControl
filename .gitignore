@@ -1,0 +1,12 @@
+# local environment
+.env
+.venv/
+__pycache__/
+*.pyc
+
+# runtime state written by the harness, not part of the artefact
+.fabric-config.json
+analysis/
+node_modules/
+
+.DS_Store
