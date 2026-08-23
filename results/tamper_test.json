@@ -1,0 +1,13 @@
+{
+  "table_after_super": "contained=false missing=[\"vector\"]",
+  "table_app_delete": "denied: permission denied for table access_audit_log",
+  "ledger_single_org_write": "committed with status (ENDORSEMENT_POLICY_FAILURE)",
+  "table_before": "contained=true missing=[]",
+  "ledger_after": "contained=true missing=[]",
+  "ledger_before": "contained=true missing=[]",
+  "ledger_definition": "Committed chaincode definition for chaincode 'accessledger' on channel 'mychannel':Version: 1.0, Sequence: 1, Endorsement Plugin: escc, Validation Plugin: vscc, Approvals: [Org1MSP: true, Org2MSP: true]",
+  "table_after_app": "contained=true missing=[]",
+  "table_super_delete": "SUCCEEDED",
+  "ledger_delete_op": "Error: endorsement failure during invoke. response: status:500 message:\"You've asked to invoke a function that does not exist: DeletePropagation\" ",
+  "table_rows_for_event": "3"
+}

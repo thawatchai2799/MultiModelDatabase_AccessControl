@@ -1,0 +1,20 @@
+{
+  "name": "mldb-bridge",
+  "version": "1.0.0",
+  "description": "Ledger-anchored cross-layer access-control bridge for Scenario C (Multi-Model Databases paper)",
+  "main": "app/server.js",
+  "type": "module",
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "start": "node app/server.js",
+    "test": "node --test app/../tests"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "pg": "^8.12.0",
+    "mongodb": "^6.8.0",
+    "@qdrant/js-client-rest": "^1.11.0",
+    "@grpc/grpc-js": "^1.11.1",
+    "@hyperledger/fabric-gateway": "^1.5.1"
+  }
+}

@@ -1,0 +1,182 @@
+name: mldb
+
+services:
+  postgres-primary:
+    image: pgvector/pgvector:pg18
+    container_name: mldb-postgres-primary
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+      # Explicit, matching the volume mount below. The postgres:18 base image
+      # moved its default PGDATA to /var/lib/postgresql/18/docker, so without
+      # this the data would not live in pg-primary-data at all. The replica
+      # already sets PGDATA the same way.
+      PGDATA: /var/lib/postgresql/data
+    volumes:
+      - ./postgres/primary/postgresql.conf:/etc/postgresql/postgresql.conf:ro
+      - ./postgres/primary/pg_hba.conf:/etc/postgresql/pg_hba.conf:ro
+      - ./postgres/primary/init.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
+      - pg-primary-data:/var/lib/postgresql/data
+    command: >
+      postgres -c config_file=/etc/postgresql/postgresql.conf
+               -c hba_file=/etc/postgresql/pg_hba.conf
+    ports: ["5432:5432"]
+    deploy:
+      resources:
+        limits:
+          cpus: "${POSTGRES_CPUS}"
+          memory: ${POSTGRES_MEM}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  postgres-replica:
+    build: ./postgres/replica
+    container_name: mldb-postgres-replica
+    environment:
+      PGDATA: /var/lib/postgresql/data
+    volumes:
+      - pg-replica-data:/var/lib/postgresql/data
+      # Same pg_hba as the primary. pg_basebackup copies only PGDATA, and the
+      # primary keeps its hba file OUTSIDE PGDATA (/etc/postgresql), so the
+      # replica otherwise boots with the image's default pg_hba (scram-only),
+      # which rejects app_user's md5-stored password -- seen on the first VM
+      # run as "password authentication failed for user app_user" on :5433.
+      - ./postgres/primary/pg_hba.conf:/etc/postgresql/pg_hba.conf:ro
+    command: >
+      postgres -c hba_file=/etc/postgresql/pg_hba.conf
+    ports: ["5433:5432"]
+    depends_on:
+      postgres-primary:
+        condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          cpus: "${POSTGRES_REPLICA_CPUS}"
+          memory: ${POSTGRES_REPLICA_MEM}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 40
+      start_period: 30s
+
+  pgbouncer:
+    image: edoburu/pgbouncer:latest
+    container_name: mldb-pgbouncer
+    volumes:
+      - ./pgbouncer/pgbouncer.ini:/etc/pgbouncer/pgbouncer.ini:ro
+      - ./pgbouncer/userlist.txt:/etc/pgbouncer/userlist.txt:ro
+    ports: ["6432:6432"]
+    depends_on:
+      postgres-primary:
+        condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          cpus: "${PGBOUNCER_CPUS}"
+          memory: ${PGBOUNCER_MEM}
+
+  mongodb:
+    # 7.0, not 8.x: MongoDB 8.x vendors a TCMalloc that is incompatible with
+    # Linux kernel 6.19-7.0.13 (SERVER-121912) and refuses to start on
+    # Ubuntu 26.04's kernel -- observed on the first VM run. 7.0 uses the
+    # older gperftools allocator and is unaffected; nothing this project
+    # uses ($pull/$addToSet/find_one/bulk_write/compound index) is 8.x-only.
+    image: mongo:7.0
+    container_name: mldb-mongodb
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
+    volumes:
+      - mongo-data:/data/db
+      - ./mongo/init-users.js:/docker-entrypoint-initdb.d/init-users.js:ro
+    ports: ["27017:27017"]
+    deploy:
+      resources:
+        limits:
+          cpus: "${MONGO_CPUS}"
+          memory: ${MONGO_MEM}
+    healthcheck:
+      test: ["CMD-SHELL", "mongosh --quiet --eval 'db.adminCommand(\"ping\")'"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  qdrant:
+    image: qdrant/qdrant:v1.19.0   # matches qdrant-client 1.19.0 (client refuses >1 minor version apart)
+    container_name: mldb-qdrant
+    volumes:
+      - qdrant-data:/qdrant/storage
+    ports: ["6333:6333", "6334:6334"]
+    deploy:
+      resources:
+        limits:
+          cpus: "${QDRANT_CPUS}"
+          memory: ${QDRANT_MEM}
+    # No CMD-SHELL healthcheck here deliberately: the qdrant/qdrant image's
+    # exact base image (and therefore which shell tools it ships) is not
+    # something to assume without being able to inspect it -- a healthcheck
+    # command that doesn't exist inside the container fails forever and
+    # silently blocks every downstream `depends_on: condition: service_healthy`,
+    # which is a much worse failure mode than no healthcheck at all. The
+    # bridge's own Qdrant client (stores.js) retries its own readiness check
+    # on startup instead (see docker-compose depends_on below and
+    # bridge/app/server.js's startup sequence).
+
+  bridge:
+    build: ./bridge
+    container_name: mldb-bridge
+    environment:
+      PORT: ${BRIDGE_PORT}
+      POSTGRES_HOST: postgres-primary
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_APP_USER: app_user
+      POSTGRES_APP_PASSWORD: app_user_dev_only_change_me
+      MONGO_URI: mongodb://app_user:app_user_dev_only_change_me@mongodb:27017/mldb
+      QDRANT_URL: http://qdrant:6333
+      FABRIC_SAMPLES: /fabric-samples
+      FABRIC_CHANNEL: ${FABRIC_CHANNEL}
+      FABRIC_CHAINCODE: ${FABRIC_CHAINCODE}
+      # Overridable so the ledger-free ablation can be run without editing
+      # this file: `FABRIC_ENABLED=false docker compose up -d bridge`. A bare
+      # literal here would silently win over the shell environment, and the
+      # resulting run would look like an ablation while still anchoring.
+      FABRIC_ENABLED: "${FABRIC_ENABLED:-true}"
+      # ledger | log | none. Same override pattern as FABRIC_ENABLED, and for
+      # the same reason: a value that is not passed through here cannot be
+      # set from the shell, and the run would silently be the wrong one.
+      AUDIT_MODE: "${AUDIT_MODE:-ledger}"
+    volumes:
+      # Fabric crypto material lives on the host (created by network-up.sh,
+      # outside Docker Compose, per the proven bring-up procedure) and is
+      # mounted read-only so the bridge can build its gateway identity from
+      # it, matching bench.mjs's connection pattern exactly.
+      - ${FABRIC_SAMPLES}:/fabric-samples:ro
+    ports: ["${BRIDGE_PORT}:${BRIDGE_PORT}"]
+    depends_on:
+      postgres-primary: { condition: service_healthy }
+      mongodb: { condition: service_healthy }
+      qdrant: { condition: service_started }
+    deploy:
+      resources:
+        limits:
+          cpus: "${BRIDGE_CPUS}"
+          memory: ${BRIDGE_MEM}
+    # network_mode: host would be simpler for reaching the Fabric peers on
+    # localhost, but breaks the other services' DNS names. Instead the
+    # Fabric peer ports (7051, 9051, 7050) are published by network-up.sh
+    # onto the host's loopback, and the bridge reaches them via
+    # host.docker.internal (see bridge/app/fabric-client.js).
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+volumes:
+  pg-primary-data:
+  pg-replica-data:
+  mongo-data:
+  qdrant-data:
