@@ -9,7 +9,7 @@
 # releases no longer expose to the peer"), but fabric/README.md's own
 # instructions still describe the older deployCC path. Those two artifacts
 # disagree with each other and there is no record of which one actually
-# produced those earlier numbers. This script uses CCaaS, matching the
+# produced the paper's E13 numbers. This script uses CCaaS, matching the
 # Dockerfile (the more modern, more robust-to-newer-Docker approach, and the
 # one this project's chaincode files are already set up for) -- flagged here
 # in case that turns out to be the wrong call and deployCC is what's needed

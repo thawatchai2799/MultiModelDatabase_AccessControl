@@ -55,6 +55,7 @@ ANCHOR_ASYNC = {"enabled": False}
 # FABRIC_ENABLED=false would otherwise produce a whole grid of unanchored
 # results that look exactly like ordinary Scenario C in the console.
 _LEDGER_OFF_ANNOUNCED = {"done": False}
+_RETRY_OFF_ANNOUNCED = {"done": False}
 
 
 def fabric_config() -> dict:
@@ -263,6 +264,15 @@ def run_trial_c(scale: int, seed: int, bridge_url: str, writer: ResultsWriter) -
         fault_stats = scenario_c.get_fault_config(bridge_url)   # how many attempts the bridge made / were injected
         anchor_cfg = scenario_c.get_anchor_config(bridge_url)   # includes whether Fabric is enabled at all
         mode = anchor_cfg.get("auditMode")
+        retries = anchor_cfg.get("retryAttempts")
+        if retries not in (None, 3) and not _RETRY_OFF_ANNOUNCED["done"]:
+            _RETRY_OFF_ANNOUNCED["done"] = True
+            print("  [c] " + "!" * 62)
+            print(f"  [c] RETRY BUDGET = {retries}: the bridge attempts each store write "
+                  f"{retries} time(s).")
+            print("  [c] This is an ablation. Every record in this run is labelled")
+            print(f"  [c] retry_attempts={retries} and must not be reported as Scenario C.")
+            print("  [c] " + "!" * 62)
         if mode not in (None, "ledger") and not _LEDGER_OFF_ANNOUNCED["done"]:
             _LEDGER_OFF_ANNOUNCED["done"] = True
             what = ("no audit trail at all: retry and concurrent propagation only"
@@ -287,6 +297,9 @@ def run_trial_c(scale: int, seed: int, bridge_url: str, writer: ResultsWriter) -
                                           # ledger | log | none -- which backend recorded the
                                           # audit trail, for the Section 6.3.3 comparison.
                                           "audit_mode": anchor_cfg.get("auditMode"),
+                                          # 3 by default; 1 in the ablation column
+                                          # that measures concurrency without retry.
+                                          "retry_attempts": anchor_cfg.get("retryAttempts"),
                                           "event_anchor_status": anchor_st})
     finally:
         try:

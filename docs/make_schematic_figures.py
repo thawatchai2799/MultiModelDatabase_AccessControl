@@ -77,47 +77,78 @@ def blank(figsize):
 # is context for that.
 # ---------------------------------------------------------------------------
 def fig_architecture(out_dir):
-    fig, ax = blank((FULL_W, 2.7))
-    ax.set_xlim(-0.01, 1.01); ax.set_ylim(-0.02, 1.02)
+    """Scenario C.
 
-    box(ax, 0.00, 0.62, 0.135, 0.17, "revoking\nclient", INK, fontsize=7)
-    box(ax, 0.205, 0.545, 0.285, 0.32,
+    Every arrow stops in clear space before the box it points at. Two things
+    made that harder than it looks. Boxes are drawn at zorder 2 and arrows at
+    zorder 1, so an arrowhead that reaches a box is painted over by the box's
+    white fill and disappears. And FancyBboxPatch adds its pad outside the
+    rectangle given to it, so a box whose left edge is nominally at x is drawn
+    from x - PAD: an arrow ending at x already overlaps the border.
+
+    Both are handled here rather than by raising the arrows above the boxes,
+    which would draw arrowheads on top of borders instead of under them.
+    """
+    fig, ax = blank((FULL_W, 3.1))
+    M = 0.035                       # clear margin on every side
+    PAD = 0.012                     # FancyBboxPatch draws this far outside
+    GAP = 0.008                     # visible air between an arrowhead and a box
+    ax.set_xlim(-M, 1 + M); ax.set_ylim(-M, 1 + M)
+
+    def left(x):    return x - PAD - GAP        # stop short of a box's left edge
+    def right(x, w):  return x + w + PAD + GAP
+    def top(y, h):  return y + h + PAD + GAP
+    def under(y):   return y - PAD - GAP
+
+    # --- row 1: client, bridge, ledger
+    cx, cw, cy, ch = 0.005, 0.125, 0.605, 0.185
+    bx, bw, by, bh = 0.245, 0.285, 0.515, 0.345
+    lx, lw, ly, lh = 0.625, 0.280, 0.585, 0.225
+    box(ax, cx, cy, cw, ch, "revoking\nclient", INK, fontsize=7)
+    box(ax, bx, by, bw, bh,
         "Bridge\n\nfail-closed anchor\nconcurrent propagation\n3\u00d7 retry, per-record lock",
         BLUE, lw=1.4, fontsize=6.6)
-    box(ax, 0.575, 0.60, 0.29, 0.21,
+    box(ax, lx, ly, lw, lh,
         "Hyperledger Fabric\nAccessLedger chaincode", ORANGE, lw=1.3, fontsize=7)
 
-    names = [("PostgreSQL", "row + ACL array"), ("MongoDB", "document + acl"), ("Qdrant", "vector + payload")]
-    sx, sw, sy, sh = [0.375, 0.590, 0.805], 0.180, 0.175, 0.20
+    # --- row 2: the three stores
+    names = [("PostgreSQL", "row + ACL array"), ("MongoDB", "document + acl"),
+             ("Qdrant", "vector + payload")]
+    sx, sw, sy, sh = [0.392, 0.608, 0.824], 0.170, 0.170, 0.215
     for x, (n, d) in zip(sx, names):
         box(ax, x, sy, sw, sh, f"{n}\n{d}", GREEN, fontsize=6.8)
 
-    box(ax, 0.00, 0.155, 0.26, 0.29,
+    box(ax, 0.005, 0.150, 0.265, 0.290,
         "Ground-truth poller\n\none thread per store,\nits own client,\npolling before the revoke",
         GREY, lw=1.3, dashed=True, fill="#F7F7F7", fontsize=6.6)
 
-    arrow(ax, (0.135, 0.705), (0.205, 0.705), INK, label="revoke", ly=0.078, fontsize=6.4)
-    arrow(ax, (0.490, 0.755), (0.575, 0.720), ORANGE, lw=1.1)
-    ax.text(0.505, 0.925, "1. anchor event before any store", ha="center", va="center",
+    # --- 1: client to bridge, bridge to ledger
+    arrow(ax, (right(cx, cw), 0.697), (left(bx), 0.697), INK)
+    ax.text((right(cx, cw) + left(bx)) / 2, 0.722, "revoke",
+            ha="center", va="bottom", fontsize=6.4, color=INK)
+    arrow(ax, (right(bx, bw), 0.715), (left(lx), 0.715), ORANGE, lw=1.1)
+    ax.text(0.545, 0.945, "1. anchor event before any store", ha="center", va="center",
             fontsize=6.4, color=ORANGE)
 
-    arrow(ax, (0.348, 0.545), (0.440, 0.375), BLUE, lw=1.1)
-    ax.text(0.168, 0.478, "2. propagate\nconcurrently (\u00d73)", ha="center", va="center",
+    # --- 2: bridge down to the stores
+    arrow(ax, (0.400, under(by)), (0.462, top(sy, sh)), BLUE, lw=1.1)
+    ax.text(0.135, 0.500, "2. propagate\nconcurrently (\u00d73)", ha="center", va="center",
             fontsize=6.3, color=BLUE, linespacing=1.3)
 
-    arrow(ax, (0.700, 0.375), (0.700, 0.600), ORANGE, lw=1.0, dashed=True)
-    ax.text(0.885, 0.500, "3. anchor propagation\nafter containment (\u00d73)", ha="center", va="center",
-            fontsize=6.3, color=ORANGE, linespacing=1.3)
+    # --- 3: propagation records anchored after the stores have closed
+    arrow(ax, (0.693, top(sy, sh)), (0.693, under(ly)), ORANGE, lw=1.0, dashed=True)
+    ax.text(0.905, 0.480, "3. anchor propagation\nafter containment (\u00d73)",
+            ha="center", va="center", fontsize=6.3, color=ORANGE, linespacing=1.3)
 
-    # The observer reaches every store on its own path, routed below the row
-    # so the three connections stay visibly separate rather than overlapping.
-    BUS = 0.085
-    ax.plot([0.130, 0.895], [BUS, BUS], linestyle=(0, (3, 2)), color=GREY, lw=0.9, zorder=1)
-    arrow(ax, (0.130, 0.155), (0.130, BUS), GREY, style_="-", lw=0.9, dashed=True)
+    # --- the observer reaches every store on its own path, routed below the row
+    BUS = 0.048
+    ax.plot([0.137, 0.912], [BUS, BUS], linestyle=(0, (3, 2)), color=GREY, lw=0.9, zorder=1)
+    arrow(ax, (0.137, under(0.150)), (0.137, BUS), GREY, style_="-", lw=0.9, dashed=True)
     for x in sx:
-        arrow(ax, (x + sw / 2, BUS), (x + sw / 2, sy), GREY, style_="<|-|>", lw=0.9, dashed=True)
-    ax.text(0.512, 0.012, "direct queries \u2014 never through the bridge or the ledger",
-            fontsize=6.4, color=GREY, ha="center", style="italic")
+        arrow(ax, (x + sw / 2, BUS), (x + sw / 2, under(sy)),
+              GREY, style_="<|-|>", lw=0.9, dashed=True)
+    ax.text(0.521, -0.010, "direct queries \u2014 never through the bridge or the ledger",
+            fontsize=6.4, color=GREY, ha="center", va="top", style="italic")
 
     save(fig, out_dir, "fig_architecture")
 
@@ -127,43 +158,68 @@ def fig_architecture(out_dir):
 # printed under each -- the numbers are the argument, not the boxes.
 # ---------------------------------------------------------------------------
 def fig_key_layout(out_dir):
-    fig, axes = plt.subplots(1, 2, figsize=(FULL_W, 2.5))
+    """Chaincode key layout, before and after.
+
+    Same three corrections as Figure 1. Boxes keep a margin from the panel
+    edge instead of running off it; "RecordPropagation" is set small enough
+    to sit inside its box rather than overflowing the border; and every arrow
+    stops clear of the box it points at, allowing for the pad that
+    FancyBboxPatch draws outside the rectangle it is given.
+
+    The panel is also taller than before, because the three fact lines at the
+    foot were being clipped by the figure edge.
+    """
+    fig, axes = plt.subplots(1, 2, figsize=(FULL_W, 2.9))
+    M = 0.04                        # margin inside each panel
+    PAD = 0.012                     # FancyBboxPatch draws this far outside
+    GAP = 0.010                     # air between an arrowhead and a box
     for ax in axes:
-        ax.set_xlim(0, 1); ax.set_ylim(0, 1); ax.axis("off")
+        ax.set_xlim(-M, 1 + M); ax.set_ylim(-M, 1 + M); ax.axis("off")
 
     RED = "#C1121F"
     layers = ["relational", "nosql", "vector"]
-    tx = [0.02, 0.355, 0.69]        # transaction boxes
-    tw = 0.29
+    # "RecordPropagation" is the widest string in the figure and sets the box
+    # width: the boxes are sized around it so the word sits inside its border
+    # rather than running to the edge of it.
+    tx = [0.005, 0.347, 0.689]
+    tw = 0.306
+    TY, TH = 0.760, 0.150           # transaction row
+    KY, KH = 0.450, 0.165           # key row
 
-    def caption(ax, lines, color):
-        ax.text(0.5, 0.085, lines, ha="center", va="center", fontsize=6.9, color=INK,
+    def caption(ax, lines):
+        ax.text(0.5, 0.075, lines, ha="center", va="center", fontsize=6.9, color=INK,
                 linespacing=1.5,
                 bbox=dict(boxstyle="round,pad=0.32", fc="#F7F7F7", ec="0.8", lw=0.6))
 
     # ---- (a) before: one key, three writers
     ax = axes[0]
-    ax.text(0.5, 0.965, "(a) one key per event", ha="center", fontsize=8, fontweight="bold", color=INK)
+    ax.text(0.5, 0.985, "(a) one key per event", ha="center", va="top",
+            fontsize=8, fontweight="bold", color=INK)
     for x, l in zip(tx, layers):
-        box(ax, x, 0.755, tw, 0.145, f"RecordPropagation\n({l})", INK, fontsize=6.4)
-        arrow(ax, (x + tw / 2, 0.755), (0.5, 0.615), RED, lw=1.0)
-    box(ax, 0.235, 0.455, 0.53, 0.16, "state key:  eventId", RED, lw=1.5, fill="#FDECEC", fontsize=7)
-    ax.text(0.5, 0.335, "three transactions read-modify-write\nthe same key in one block",
+        box(ax, x, TY, tw, TH, f"RecordPropagation\n({l})", INK, fontsize=5.8)
+        arrow(ax, (x + tw / 2, TY - PAD - GAP), (0.5, KY + KH + PAD + GAP), RED, lw=1.0)
+    box(ax, 0.230, KY, 0.540, KH, "state key:  eventId", RED, lw=1.5,
+        fill="#FDECEC", fontsize=7)
+    ax.text(0.5, 0.330, "three transactions read-modify-write\nthe same key in one block",
             ha="center", va="center", fontsize=6.6, color=RED, linespacing=1.4)
-    caption(ax, "15 MVCC conflicts over 5 revokes\nretry budget exhausted (3 of 3)\nrevoke latency 9.47 s", RED)
+    caption(ax, "15 MVCC conflicts over 5 revokes\nretry budget exhausted (3 of 3)\n"
+                "revoke latency 9.47 s")
 
     # ---- (b) after: one key each, disjoint
     ax = axes[1]
-    ax.text(0.5, 0.965, "(b) one key per (event, layer)", ha="center", fontsize=8, fontweight="bold", color=INK)
+    ax.text(0.5, 0.985, "(b) one key per (event, layer)", ha="center", va="top",
+            fontsize=8, fontweight="bold", color=INK)
     for x, l in zip(tx, layers):
-        box(ax, x, 0.755, tw, 0.145, f"RecordPropagation\n({l})", INK, fontsize=6.4)
-        arrow(ax, (x + tw / 2, 0.755), (x + tw / 2, 0.615), GREEN, lw=1.0)
-        box(ax, x, 0.455, tw, 0.16, f"propIdx~\neventId~{l[:4]}", GREEN, fontsize=6.3, fill="#EBF7F2")
-    ax.text(0.5, 0.335, "disjoint write sets; the event key is\nread, never written",
+        box(ax, x, TY, tw, TH, f"RecordPropagation\n({l})", INK, fontsize=5.8)
+        arrow(ax, (x + tw / 2, TY - PAD - GAP), (x + tw / 2, KY + KH + PAD + GAP),
+              GREEN, lw=1.0)
+        box(ax, x, KY, tw, KH, f"propIdx~\neventId~{l[:4]}", GREEN, fontsize=6.3,
+            fill="#EBF7F2")
+    ax.text(0.5, 0.330, "disjoint write sets; the event key is\nread, never written",
             ha="center", va="center", fontsize=6.6, color=GREEN, linespacing=1.4)
-    caption(ax, "0 MVCC conflicts\nretry budget free (1 of 3)\nrevoke latency 5.00 s", GREEN)
+    caption(ax, "0 MVCC conflicts\nretry budget free (1 of 3)\nrevoke latency 5.00 s")
 
-    fig.subplots_adjust(wspace=0.10)
+    fig.subplots_adjust(wspace=0.14)
     save(fig, out_dir, "fig_key_layout")
 
 

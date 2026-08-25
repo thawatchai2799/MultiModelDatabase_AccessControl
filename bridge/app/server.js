@@ -40,12 +40,27 @@ const stores = [
   makeQdrantStore({ url: process.env.QDRANT_URL }),
 ];
 
-// Retry policy agreed for propagation failures: 3 attempts, exponential
-// backoff starting at 50ms (50ms, 100ms, 200ms). If all three attempts fail
+// Retry policy for propagation failures: MAX_ATTEMPTS attempts (3 by
+// default, and 3 for every result reported in the paper), with exponential
+// backoff starting at 50ms (50ms, 100ms, 200ms). If all the attempts fail
 // for a given layer, that layer is recorded as a failed propagation and
 // counts toward the false-containment rate if the bridge is ever asked
 // whether the resource is contained while that layer is still unresolved.
-const MAX_ATTEMPTS = 3;
+// The attempt count is configurable so that the ablation can run the bridge
+// with retry switched off (RETRY_ATTEMPTS=1) and thereby separate what the
+// bounded retry contributes from what concurrent propagation contributes.
+// The default is 3, and every result reported before this option existed was
+// produced with the default, so no previously reported number is affected.
+const MAX_ATTEMPTS = (() => {
+  const raw = process.env.RETRY_ATTEMPTS;
+  if (raw === undefined || raw === '') return 3;
+  const n = Number(raw);
+  if (!Number.isInteger(n) || n < 1) {
+    console.error(`FATAL: RETRY_ATTEMPTS must be an integer >= 1, got ${JSON.stringify(raw)}`);
+    process.exit(1);
+  }
+  return n;
+})();
 const BASE_BACKOFF_MS = 50;
 
 function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
@@ -81,7 +96,9 @@ async function withRetry(fn) {
 // same per-attempt semantics the Python harness applies to Scenario A's
 // single, un-retried attempt (scenarios/common/faults.py). Here the
 // attempt is made inside withRetry, so a layer stays un-revoked only if all
-// MAX_ATTEMPTS attempts fail (p^3). Fabric anchoring calls are NOT
+// MAX_ATTEMPTS attempts fail, with probability p^MAX_ATTEMPTS -- p^3 at the
+// default budget, and p itself when the ablation sets RETRY_ATTEMPTS=1.
+// Fabric anchoring calls are NOT
 // injected: the regime models flaky data stores, not a flaky ledger.
 // Configured per run via POST /fault-config {p, seed}; p=0 (default) is
 // the healthy regime. Seeded (mulberry32) so a run is reproducible.
@@ -333,7 +350,8 @@ app.post('/anchor-config', (req, res) => {
 // ordinary Scenario C run.
 app.get('/anchor-config', (_req, res) =>
   res.json({ async: anchorCfg.async, tracked: anchorState.size,
-             fabricEnabled: AUDIT_MODE === 'ledger', auditMode: AUDIT_MODE }));
+             fabricEnabled: AUDIT_MODE === 'ledger', auditMode: AUDIT_MODE,
+             retryAttempts: MAX_ATTEMPTS }));
 
 // Whether the background anchoring for one event has finished. The harness
 // reads this next to /status so that "IsContained says no" can be attributed

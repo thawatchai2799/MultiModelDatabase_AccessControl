@@ -6,8 +6,8 @@ whether a run went well, these exist to make an argument in print, and the
 two want different framing, labels and captions.
 
 Every figure is written twice -- PDF for submission (vector text stays sharp
-and most venues prefer it) and PNG at 600 dpi for reading and drafts -- at the
-target column widths, so nothing has to be rescaled in a word processor.
+and most venues prefer it) and PNG at 600 dpi for reading and drafts -- at
+the target column widths, so nothing has to be rescaled in a word processor.
 
 Run from mldb/:  python3 docs/make_paper_figures.py [--results results] [--out docs/figures]
 """
@@ -230,12 +230,19 @@ def fig_scale(results, out_dir, c_1k_file):
     ax.errorbar(scales, cm, yerr=[cl, ch], fmt="s-", color=C_C, capsize=2.5,
                 markeredgecolor="white", markeredgewidth=0.4, label="C (bridge)")
     ax.errorbar(scales, am, yerr=[al, ah], fmt="o-", color=C_A, capsize=2.5,
-                markeredgecolor="white", markeredgewidth=0.4, label="A (uncoordinated)")
+                markeredgecolor="white", markeredgewidth=0.4, label="A (uncoordinated, 10 ms polling)")
     ax.set_xscale("log"); ax.set_yscale("log")
     ax.set_xlabel("records seeded")
     ax.set_ylabel("Leak Window (s)")
     ax.set_xticks(scales); ax.set_xticklabels(["1K", "10K", "100K"])
-    ax.legend(frameon=False, loc="center right")
+    # The two series occupy the top and the bottom of the panel and never
+    # meet, so the clear band is between them -- not at the middle right,
+    # where the legend used to cross A's error bar at 100K, and not at the
+    # bottom left, where A's lower whisker at 1K reaches down. The headroom
+    # above C is opened up and the legend placed there, clear of both.
+    ax.set_ylim(top=max(cm) * 6.0)
+    ax.legend(frameon=False, loc="upper center", fontsize=6.4,
+              handlelength=1.8, ncol=1, borderaxespad=0.3)
     save(fig, out_dir, "fig5_scale")
     print(f"    A: {[round(v,3) for v in am]}   C: {[round(v,3) for v in cm]}  (C@1K from {c_1k_file})")
 
@@ -273,7 +280,7 @@ def fig_b_mechanisms(results, out_dir):
         if t:
             heights.append(TIMEOUT_H); colors.append("0.55"); notes.append("\u226530 s")
         elif v is None or v < 0.01:
-            heights.append(FLOOR); colors.append(C_ALT); notes.append("<10 ms")
+            heights.append(FLOOR); colors.append(C_ALT); notes.append("\u2264 10 ms")
         else:
             heights.append(v); colors.append(C_ALT); notes.append(f"{v:.2f} s" if v >= 1 else f"{v*1000:.0f} ms")
 
@@ -285,11 +292,27 @@ def fig_b_mechanisms(results, out_dir):
     for b, n in zip(bars, notes):
         ax.text(b.get_x() + b.get_width() / 2, b.get_height() * 1.15, n,
                 ha="center", va="bottom", fontsize=6.2)
-    ax.axhline(0.01, color="0.6", linestyle=":", linewidth=0.7)
-    ax.text(len(order) - 0.4, 0.0115, "poll resolution", fontsize=5.6, color="0.4",
-            ha="right", va="bottom")
+    ax.axhline(0.01, color="0.45", linestyle=":", linewidth=0.9)
+    # The label used to sit at the right-hand end of the line, on top of B4's
+    # bar and hard against the figure edge, in a grey light enough to read as
+    # part of the gridline. It now sits in the clear gap between B1 and B2,
+    # dark enough to read, on an opaque patch so the dotted line does not
+    # run through the letters.
+    # There is no clear space inside the axes: the bars are wide enough that
+    # every gap between them is narrower than the words. Putting the label
+    # over a bar in pale grey, as an earlier version did, made it read as part
+    # of the gridline. It goes in the margin instead, level with the line it
+    # names, which is where a reader looks for an axis annotation anyway.
+    ax.annotate("poll resolution", xy=(len(order) - 0.4, 0.01),
+                xytext=(6, 0), textcoords="offset points",
+                fontsize=6.0, color="0.25", ha="left", va="center",
+                annotation_clip=False)
     ax.set_xticks(range(len(order))); ax.set_xticklabels(order)
     ax.set_ylabel("Leak Window (s)")
+    # save() writes with the figure's own bounding box rather than a tight
+    # one, so anything drawn outside the axes is clipped unless room is
+    # reserved for it here.
+    fig.subplots_adjust(right=0.78)
     save(fig, out_dir, "fig6_b_mechanisms")
     print(f"    medians: {[None if v is None else round(v,4) for v in vals]}  timeouts: {timeouts}")
 
@@ -307,6 +330,10 @@ def fig_ablation(results, out_dir):
     try:
         on, off = load(results, "faulty20_ledger"), load(results, "faulty20_none")
         logt = load(results, "faulty20_log")
+        try:
+            noretry = load(results, "faulty20_none-noretry")
+        except MissingResults:
+            noretry = None
         nseed = 20
     except MissingResults:
         on, off = load(results, "ablation_ledger_on"), load(results, "ablation_ledger_off")
@@ -330,8 +357,12 @@ def fig_ablation(results, out_dir):
     # The middle column is the whole bridge minus its record: retry AND
     # concurrent propagation AND the per-record lock. Labelling it "retry"
     # would suggest retry was isolated on its own, which it was not.
-    cols = [("A", C_A, a_side(on), "n/a", "A: no retry, no concurrency, no record")]
-    cols.append(("C\u2212record", C_ALT, c_side(off), _confirmed(off), "C\u2212record: retry + concurrency, no record"))
+    cols = [("A", C_A, a_side(on), "n/a", "A: sequential, no retry, no record")]
+    if noretry is not None:
+        # Concurrency on its own, so that it can be told apart from retry.
+        cols.append(("+conc", "#6E7B8B", c_side(noretry), _confirmed(noretry),
+                     "+conc: concurrent propagation, still no retry"))
+    cols.append(("+retry", C_ALT, c_side(off), _confirmed(off), "+retry: bounded retry added, no record"))
     if logt is not None:
         cols.append(("+log", "#7A5195", c_side(logt), _confirmed(logt), "+log: record in an append-only table"))
     cols.append(("+ledger", C_C, c_side(on), _confirmed(on), "+ledger: record on Hyperledger Fabric"))
@@ -347,8 +378,15 @@ def fig_ablation(results, out_dir):
     conf_n = [int(x.split("/")[0]) if x[0].isdigit() else 0 for x in confirmed]   # "n/a" -> 0
     x = np.arange(len(cols))
 
+    # Three panels need the full text-block width; this figure was never one
+    # of the four narrow ones. A blanket find-replace done while reverting an
+    # unrelated change (v45 -> v46, restoring four OTHER figures from full
+    # width back to column width) matched this figsize by coincidence and
+    # shrank it too, which crammed three panels into one column's width and
+    # produced the overlapping titles and the panel-c ylabel printed
+    # diagonally across panel b.
     fig, axes = plt.subplots(1, 3, figsize=(FULL_W, 2.9))
-    fig.subplots_adjust(wspace=0.48, bottom=0.30)
+    fig.subplots_adjust(wspace=0.52, bottom=0.34)
 
     ax = axes[0]
     ax.bar(x, unbounded, color=colors, width=0.62)
@@ -359,8 +397,8 @@ def fig_ablation(results, out_dir):
     ax.set_title("(a) containment", fontsize=8)
 
     ax = axes[1]
-    ax.bar(x - 0.19, windows, 0.36, color=colors, label="window")
-    ax.bar(x + 0.19, lats, 0.36, color=colors, alpha=0.45, hatch="///", label="latency")
+    ax.bar(x - 0.20, windows, 0.38, color=colors, label="window")
+    ax.bar(x + 0.20, lats, 0.38, color=colors, alpha=0.45, hatch="///", label="latency")
     ax.set_ylabel("seconds")
     ax.set_title("(b) window and latency", fontsize=8)
     ax.legend(frameon=False, fontsize=6.2, loc="upper left")
@@ -368,14 +406,21 @@ def fig_ablation(results, out_dir):
 
     ax = axes[2]
     ax.bar(x, conf_n, color=colors, width=0.62)
-    for i, v in enumerate(confirmed):
-        ax.text(i, 0.12, v, ha="center", fontsize=6.8)
-    ax.set_ylim(0, nseed * 1.25); ax.set_yticks(range(0, nseed + 1, max(1, nseed // 5)))
+    # Each label goes above its own bar. A fixed height put the two 19/20
+    # labels at the foot of two tall bars, where they overlapped the bars and
+    # each other and ran together as "19/2019/20".
+    for i, (v, h) in enumerate(zip(confirmed, conf_n)):
+        ax.text(i, h + nseed * 0.035, v, ha="center", va="bottom", fontsize=6.5)
+    ax.set_ylim(0, nseed * 1.30); ax.set_yticks(range(0, nseed + 1, max(1, nseed // 5)))
     ax.set_ylabel("trials the record\ncould confirm", fontsize=7)
     ax.set_title("(c) attribution", fontsize=8)
 
     for ax in axes:
-        ax.set_xticks(x); ax.set_xticklabels(labels, fontsize=6.8)
+        ax.set_xticks(x)
+        # Five ticks in one column-pair width collide at 6.8 pt; rotating
+        # slightly is cheaper than shortening the labels into initials.
+        ax.set_xticklabels(labels, fontsize=6.0, rotation=20, ha="right")
+        ax.tick_params(axis="x", pad=1)
     from matplotlib.patches import Patch
     fig.legend(handles=[Patch(color=c[1], label=c[4]) for c in cols],
                loc="lower center", ncol=2, frameon=False, fontsize=6.4,

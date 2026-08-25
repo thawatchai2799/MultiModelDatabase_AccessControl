@@ -666,6 +666,14 @@ def bridge_timing_summary(records):
             # None when the field predates this flag; True/False once recorded.
             out[label]["audit_mode"] = sorted({r["extra"].get("audit_mode") for r in records
                                                if r["scenario"] == label and r["extra"].get("audit_mode")})
+            # 3 by default; 1 in the ablation column that measures concurrent
+            # propagation without the bounded retry. Without this the
+            # no-retry run is indistinguishable from an ordinary audit=none
+            # run in every table the pipeline produces.
+            out[label]["retry_attempts"] = sorted(
+                {r["extra"].get("retry_attempts") for r in records
+                 if r["scenario"] == label and r["extra"].get("retry_attempts") is not None},
+                key=str)
             out[label]["fabric_enabled"] = sorted(
                 {r["extra"].get("fabric_enabled") for r in records
                  if r["scenario"] == label and r["extra"].get("fabric_enabled") is not None},
@@ -965,7 +973,7 @@ def write_report(out_dir, summary, n_records, n_errors, n_skipped, errors):
                   "(decision 5) -- the Leak Window cannot be shorter than this. `max_store` is the slowest store write, "
                   "which is what actually closes the leak. `max_anchor_prop` is anchoring the propagation record, which "
                   "happens AFTER the data is already inaccessible and so costs latency, not exposure.\n")
-        md.append("| group | audit | BatchTimeout | anchoring | trials | anchor_event (s) | max_store (s) | max_anchor_prop (s) | anchor_prop attempts (max) | total (s) |\n|---|---|---|---|---|---|---|---|---|---|")
+        md.append("| group | audit | retry | BatchTimeout | anchoring | trials | anchor_event (s) | max_store (s) | max_anchor_prop (s) | anchor_prop attempts (max) | total (s) |\n|---|---|---|---|---|---|---|---|---|---|---|")
         for label, d in bt.items():
             btv = ", ".join(d.get("batch_timeout") or []) or "-"
             amv = ", ".join(d.get("anchor_mode") or []) or "-"
@@ -975,19 +983,25 @@ def write_report(out_dir, summary, n_records, n_errors, n_skipped, errors):
             else:
                 fev = d.get("fabric_enabled") or []
                 fev = "-" if not fev else ", ".join("on" if v else "OFF (ablation)" for v in fev)
-            md.append(f"| {pretty(label)} | {fev} | {btv} | {amv} | {d['n_trials']} | {_f(d['anchor_event_s']['median'])} | "
+            rav = ", ".join(str(x) for x in (d.get("retry_attempts") or [])) or "-"
+            md.append(f"| {pretty(label)} | {fev} | {rav} | {btv} | {amv} | {d['n_trials']} | {_f(d['anchor_event_s']['median'])} | "
                       f"{_f(d['max_store_s']['median'])} | {_f(d['max_anchor_prop_s']['median'])} | "
                       f"{_f(d['anchor_prop_attempts']['max'], 0)} | {_f(d['total_s']['median'])} |")
         if any(len(d.get("batch_timeout") or []) > 1 or len(d.get("anchor_mode") or []) > 1
                or len(d.get("fabric_enabled") or []) > 1 or len(d.get("audit_mode") or []) > 1
+               or len(d.get("retry_attempts") or []) > 1
                for d in bt.values()):
-            md.append("\n**A group above mixes more than one BatchTimeout, anchoring mode or ledger setting.** "
+            md.append("\n**A group above mixes more than one BatchTimeout, anchoring mode, ledger setting or retry budget.** "
                       "Its medians are not comparable; separate the runs by result file.")
         def _is_none(d):
             am = d.get("audit_mode") or []
             if am:                                   # recorded: authoritative
                 return "none" in am
             return False in (d.get("fabric_enabled") or [])   # legacy files only
+        if any(1 in (d.get("retry_attempts") or []) for d in bt.values()):
+            md.append("\nA group with retry=1 is the concurrency-without-retry ablation: the bridge "
+                      "propagates to the three stores in parallel but makes a single attempt at each, "
+                      "so containment reflects concurrency alone.")
         if any(_is_none(d) for d in bt.values()):
             md.append("\nA group with audit=none is the ablation: retry and concurrent propagation with no "
                       "record at all. It has no containment claim to audit, so every trial appears under "

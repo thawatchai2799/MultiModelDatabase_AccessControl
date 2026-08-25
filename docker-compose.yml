@@ -151,6 +151,12 @@ services:
       # the same reason: a value that is not passed through here cannot be
       # set from the shell, and the run would silently be the wrong one.
       AUDIT_MODE: "${AUDIT_MODE:-ledger}"
+      # Ablation only. Default 3; RETRY_ATTEMPTS=1 disables the bounded retry
+      # so that concurrency can be measured apart from it. This line exists
+      # because an env var the compose file does not forward is silently
+      # ignored inside the container -- the same omission has cost us three
+      # runs already.
+      RETRY_ATTEMPTS: "${RETRY_ATTEMPTS:-3}"
     volumes:
       # Fabric crypto material lives on the host (created by network-up.sh,
       # outside Docker Compose, per the proven bring-up procedure) and is

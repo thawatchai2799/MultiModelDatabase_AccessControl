@@ -88,6 +88,7 @@ Two multi-run drivers are provided:
 
 ```bash
 bash experiments/run_faulty_grid.sh    # 20 seeds x 3 audit backends, faulty regime
+RETRY=1 MODES="none" bash experiments/run_faulty_grid.sh   # concurrency-only ablation column
 bash experiments/tamper_test.sh        # administrator tampering, both audit backends
 ```
 
@@ -99,6 +100,7 @@ bash experiments/tamper_test.sh        # administrator tampering, both audit bac
 | `ac_10k.jsonl`, `ac_100k.jsonl` | the same grid at 10K and 100K |
 | `ac_faulty_v30.jsonl`, `ac_faulty_10k.jsonl` | faulty regime, p = 0.30, at 1K and 10K, 5 seeds |
 | `faulty20_ledger.jsonl`, `faulty20_none.jsonl`, `faulty20_log.jsonl` | the 20-seed faulty grid, one file per audit backend |
+| `faulty20_none-noretry.jsonl` | the same grid with the bridge's retry disabled (`RETRY_ATTEMPTS=1`), isolating concurrent propagation from bounded retry |
 | `a_async16.jsonl` | Scenario A with an asynchronous vector worker |
 | `a_poll50ms.jsonl` | the observer-effect check, at a 50 ms polling interval |
 | `smoke13b_ab.jsonl`, `b_10k.jsonl` | Scenario B mechanisms B1–B6 |
@@ -145,7 +147,7 @@ Three conventions matter when reading these files:
 
 ## Tests
 
-Nine suites exercise the harness, the chaincode and the bridge. None
+Ten suites exercise the harness, the chaincode and the bridge. None
 requires Docker, a network or a running ledger:
 
 ```bash
@@ -154,6 +156,7 @@ for t in test_poll_concurrent test_faults test_analyze test_seed_guard \
   python experiments/$t.py; done
 python bridge/gen_propagate_test.py
 python bridge/gen_audit_log_test.py
+python bridge/gen_retry_budget_test.py
 node fabric/chaincode/test-chaincode.mjs
 ```
 
