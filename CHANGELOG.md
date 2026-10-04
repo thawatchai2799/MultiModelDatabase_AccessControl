@@ -520,6 +520,42 @@ proxy PDF, and the submission PDF must come from Word. The cover letter
 is shortened by four lines so that it fits one page in Word (v58's ran
 one line over) and now carries the same contribution sentence.
 
+### v60 (4 October, 22:25) -- the archived release
+
+Release v1.2.0 (commit 4f0f69f) is archived by Zenodo as
+https://doi.org/10.5281/zenodo.23139029; Section IX-B now names it in
+place of v1.1.0 / 22097730 (`v58_edits.py`, block "v60"). The only other
+change from v59 is that one sentence; `verify_v58.py` 0 mismatches. The
+repository head is one commit past the release: this CHANGELOG entry and
+the v60 edit block.
+
+### v61 (4 October, 22:40) -- reference details confirmed at source
+
+Three reference entries completed from the publishers' own pages, each
+confirmed by the author against the PDF or landing page: [26] gains its
+Springer DOI 10.1007/978-3-642-34883-9_22 (LNCS 7646, pp. 275-287
+confirmed from the chapter footer; the unconfirmed ordinal "5th" is
+dropped); [50] gains the IEEE DOI 10.1109/ECTI-NCON.2019.8692241 and
+the venue as IEEE Xplore names it; [21] gains vol. 4, no. 1, Art. no.
+11, pp. 1-26, Feb. 2026 from the ACM reference format and "Honeybee"
+as ACM spells it. [6] stays as it is: the Smart Cities submission is
+still under review. Six changed lines against v60, all in the
+reference list; `verify_v58.py` 0 mismatches.
+
+### v62 (4 October, 22:50) -- the excluded trial, stated where it is used
+
+A second editor-style reading of v61 raised four points. Two were not
+defects: Table XI's "+ concurrency" column holds exactly 36 "unbounded"
+cells (counted from the .docx), matching Table VII, and "Odrant" is the
+proxy PDF's rendering of an 8-pt "Qdrant" (the PDF text layer says
+Qdrant). Two were fair: the abstract's "35 of 49 trials" now reads "35
+of 49 valid trials" (248 words), and the Table VIII caption now says over
+which seeds the pairs are counted (49 for every comparison with Scenario
+A at p = 0.30, 50 at the other two p), from `pair.*.n_pairs`. The
+template's "10.1109/ACCESS.2026.DOI" and "xxxx 00, 0000" on page 1 are
+IEEE Access's own placeholders and stay. Four changed lines against v61;
+`verify_v58.py` 0 mismatches.
+
 ### Not done, and why
 
 - **Network delay, packet loss, process crash** (the "single host"

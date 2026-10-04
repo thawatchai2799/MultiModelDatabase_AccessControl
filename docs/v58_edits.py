@@ -580,21 +580,44 @@ EDITS = [
              "measurement and the evidence, not a new coordination mechanism: the outbox closed more leaks than "
              "the bridge, and the case for the ledger rests on the one property the tested administrator could "
              "not alter.")},
+    # ------------------------------------------------- v60: the Zenodo version DOI of v1.2.0
+    # Release v1.2.0 (commit 4f0f69f) archived by Zenodo on 4 October 2026 as
+    # record 23139029; the concept DOI 22066253 is unchanged.
+    {"kind": "para_sub",
+     "old_prefix": "The artefact — source code, container definitions, chaincode,",
+     "find": "the release corresponding to this paper is tagged v1.1.0 and has its own identifier, https://doi.org/10.5281/zenodo.22097730.",
+     "new": "the release corresponding to this paper is tagged v1.2.0 and has its own identifier, https://doi.org/10.5281/zenodo.23139029."},
+    # ------------------------------------------------- v62: the excluded trial, stated where the number is used
+    # An editor-style reading of v61 asked what "35 of 49" is of, and over
+    # which seeds the pairs are counted. One word in the abstract; the pair
+    # denominators go into the Table VIII caption (TABLE_VIII above).
+    {"kind": "abstract",
+     "find": "trials at 10,000 records, p = 0.30.",
+     "new": "valid trials at 10,000 records, p = 0.30."},
 ]
 
 # Reference list changes (D6). Keys are the v57 numbers.
 REF_REPLACE = {
+    # v61: DOI from the Springer chapter page (978-3-642-34883-9_22); the
+    # ordinal "5th" dropped because that page does not state it.
     26: ("[26]  T. Chomsiri, X. He, and P. Nanda, \"Limitation of listed-rule firewall and the design of tree-rule "
-         "firewall,\" in Proc. 5th Int. Conf. Internet and Distributed Computing Systems (IDCS), LNCS vol. 7646, "
-         "Berlin, Germany: Springer, 2012, pp. 275–287."),
+         "firewall,\" in Proc. Int. Conf. Internet and Distributed Computing Systems (IDCS 2012), LNCS vol. 7646, "
+         "Berlin, Germany: Springer, 2012, pp. 275–287, doi: 10.1007/978-3-642-34883-9_22."),
+    # v61: volume, issue, article number and page count from the ACM PDF
+    # (Proc. ACM Manag. Data 4(1), Article 11, 26 pages, Feb. 2026).
+    21: ("[21]  H. Zhong, M. Lentz, N. Narodytska, A. Szekeres, and K. Rong, \"Honeybee: efficient role-based "
+         "access control for vector databases via dynamic partitioning,\" Proc. ACM on Management of Data, vol. 4, "
+         "no. 1 (SIGMOD), Art. no. 11, pp. 1–26, Feb. 2026, doi: 10.1145/3786625."),
 }
 REF_DELETE = [45]
 # Inserted after v57's [50]; cited in the text as [LOTTERY] until numbering is resolved.
 REF_INSERT_AFTER = {
     50: ("LOTTERY",
-         "P. Saichua, S. Khunthi, and T. Chomsiri, \"Design of blockchain lottery for Thai government,\" in Proc. 4th "
-         "Int. Conf. Digital Arts, Media and Technology and 2nd ECTI Northern Section Conf. Electrical, Electronics, "
-         "Computer and Telecommunications Engineering (ECTI DAMT-NCON), Nan, Thailand, 2019, pp. 9–12."),
+         # v61: venue as IEEE Xplore names it and the DOI (document 8692241)
+         "P. Saichua, S. Khunthi, and T. Chomsiri, \"Design of blockchain lottery for Thai government,\" in Proc. "
+         "2019 Joint Int. Conf. Digital Arts, Media and Technology with ECTI Northern Section Conf. Electrical, "
+         "Electronics, Computer and Telecommunications Engineering (ECTI DAMT-NCON), Nan, Thailand, 2019, pp. 9–12, "
+         "doi: 10.1109/ECTI-NCON.2019.8692241."),
 }
 
 # Table VII: the new O column goes after A. Row order is v57's. Values per row
@@ -635,7 +658,10 @@ TABLE_VIII = {
     "caption": ("Trials leaking without bound at three injection probabilities (10,000 records, fifty seeds per "
                 "cell, paired schedule). Each cell is k of n with its Wilson 95% interval; “pairs a/b” gives the seeds "
                 "on which only Scenario A leaked (a) and on which only that configuration leaked (b), with the exact "
-                "McNemar p-value on the discordant pairs. Only proportions are reported from the sweep: for every "
+                "McNemar p-value on the discordant pairs; pairs are counted over the seeds valid in both columns "
+                "({{p30.pair.O.n_pairs}} for every comparison with Scenario A at p = 0.30, where seed 3 is excluded "
+                "from A, and {{p10.pair.O.n_pairs}} at p = 0.10 and {{p05.pair.O.n_pairs}} at p = 0.05). Only "
+                "proportions are reported from the sweep: for every "
                 "seed the p = 0.05 cell was the first revoke after a bridge restart, so its timings include "
                 "connection warm-up and are not comparable with Table VII’s."),
     "header": ["p", "A", "O", "+ concurrency", "+ retry", "+ log table", "+ ledger"],
