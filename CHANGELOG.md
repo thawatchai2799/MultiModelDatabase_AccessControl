@@ -629,6 +629,14 @@ the authors' decisions, after a fourth reading asked again: the title,
 the self-citations (5 of 56) and the duplicated reproducibility
 paragraphs.
 
+### v68 (4 October, 23:45) -- no multiplier
+
+Section VI-C no longer states "a factor of roughly 25": the sentence
+gives 2.67 s against 104 ms as both are measured under 10 ms polling and
+the 30 ms system bound, which say the same thing without a ratio that
+flatters the bridge. One changed line; `verify_v58.py` 0 mismatches.
+Submitted as v68.
+
 ### Not done, and why
 
 - **Network delay, packet loss, process crash** (the "single host"

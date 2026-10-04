@@ -725,6 +725,14 @@ EDITS = [
     # ------------------------------------------------- v67: the two -ise forms v66 left behind
     {"kind": "replace_body", "find": "unauthorised", "new": "unauthorized", "expect": 1},
     {"kind": "replace_body", "find": "authorised", "new": "authorized", "expect": 1},
+    # ------------------------------------------------- v68: no multiplier at all
+    # The two measured values and the system bound are in the sentence; the
+    # ratio between them added nothing and was the one thing every reading
+    # queried.
+    {"kind": "para_sub",
+     "old_prefix": "On the healthy path the bridge is slower, and by a wide margin:",
+     "find": "as both are measured under 10 ms polling — a factor of roughly 25 on the measured values, and more against the stack’s system bound",
+     "new": "as both are measured under 10 ms polling, and more against the stack’s system bound"},
 ]
 
 # Reference list changes (D6). Keys are the v57 numbers.
