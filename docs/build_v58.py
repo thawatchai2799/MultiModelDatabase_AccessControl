@@ -106,6 +106,8 @@ def load_values(p30, p10, p05):
                     per_layer[l] += 1
         v[f"{tag}.injected_n"] = str(n_inj)
         v[f"{tag}.injected_layers"] = ", ".join(f"{l} in {c}" for l, c in sorted(per_layer.items(), key=lambda x: -x[1]))
+        # seeds with at least one first-attempt failure the model expects: n * (1 - (1-p)^3)
+        v[f"{tag}.injected_expected"] = f"{len(seeds) * (1 - (1 - pv) ** 3):.1f}"
         # Scenario A must have leaked on every valid injected trial
         a_leaked = blk["configs"]["A"]["leaked_without_bound"]
         a_valid_injected = sum(1 for t in blk["configs"]["A"]["trials"]

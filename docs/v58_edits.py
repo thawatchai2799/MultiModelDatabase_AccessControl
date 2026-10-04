@@ -108,7 +108,8 @@ EDITS = [
     {"kind": "cell", "table_header1": "A healthy", "row": "Leak Window, system bound (10K) †", "col": "C faulty",
      "old": "2.62 s", "new": "{{p30.Cled.win_2}} s"},
     {"kind": "cell", "table_header1": "A healthy", "row": "Drift window observed at 10 ms polling ‡", "col": "A faulty",
-     "old": "0.261 s", "new": "{{p30.A.win}} s"},
+     # v64: the row pairs 1K / 10K in every other cell; A faulty's 1K value is Table V's 79 ms
+     "old": "0.261 s", "new": "0.079 s / {{p30.A.win}} s"},
     {"kind": "cell", "table_header1": "A healthy", "row": "Drift window observed at 10 ms polling ‡", "col": "C faulty",
      "old": "2.62 s", "new": "2.62 s / {{p30.Cled.win_2}} s"},
     {"kind": "cell", "table_header1": "A healthy", "row": "Unbounded leaks at 10K", "col": "A faulty",
@@ -619,6 +620,65 @@ EDITS = [
              "derivation and rendering of figures, and the drafting of code. All technical content, mathematical "
              "derivations, and experimental design are the authors’ own, and the authors reviewed and verified all "
              "text in the final manuscript.")},
+    # ------------------------------------------------- v64: the factor of 25 is a ratio of measured windows
+    # Scenario A's 104 ms is the window under 10 ms polling; its system bound
+    # is <= 30 ms (Table VI), so the ratio of measured windows flatters the
+    # bridge. The three sentences now say "as measured". Table VI's row of
+    # 1K / 10K pairs says so in its label. And the Faulty bullet says what
+    # "independently with probability p" means for a schedule that is a
+    # pure function of (seed, layer, attempt), with the observed count of
+    # injected seeds against the model's expectation.
+    {"kind": "abstract",
+     "find": "The bridge’s healthy-path window is roughly 25 times longer.",
+     "new": "The bridge’s healthy-path window is roughly 25 times the stack’s as measured."},
+    {"kind": "para_sub",
+     "old_prefix": "• A ledger-anchored bridge, built on the Fabric topology",
+     "find": "We report that the bridge’s window is about 25 times longer than the uncoordinated baseline’s when nothing fails,",
+     "new": ("We report that the bridge’s window is about 25 times longer than the uncoordinated baseline’s as both "
+             "are measured when nothing fails, and more against the baseline’s system bound,")},
+    {"kind": "para_sub",
+     "old_prefix": "The proposed bridge’s window is about 25 times longer on the healthy path.",
+     "find": "The proposed bridge’s window is about 25 times longer on the healthy path.",
+     "new": ("The proposed bridge’s window is about 25 times longer than the stack’s as measured on the healthy path, "
+             "and more against the stack’s system bound of about 30 ms.")},
+    {"kind": "cell", "table_header1": "A healthy", "row": "Drift window observed at 10 ms polling ‡",
+     "old": "Drift window observed at 10 ms polling ‡", "new": "Drift window observed at 10 ms polling (1K / 10K) ‡"},
+    {"kind": "bullet_sub",
+     "old_lead": "Faulty. ",
+     "find": ("Whether the k-th attempt on a given layer fails is a pure function of the seed, the layer and k, "
+              "computed identically in the Python harness and in the bridge, so that the same attempt fails in "
+              "every scenario or in none."),
+     "new": ("Whether the k-th attempt on a given layer fails is a pure function of the seed, the layer and k: a "
+             "uniform value drawn from a generator seeded by that triple, compared against p, and computed "
+             "identically in the Python harness and in the bridge, so that the same attempt fails in every "
+             "scenario or in none. Attempts and layers are therefore independent draws at probability p, as the "
+             "model of Section VI-C assumes; they are fixed per seed rather than redrawn at run time. Across the "
+             "fifty seeds at p = 0.30, {{p30.injected_n}} had at least one first-attempt failure, against "
+             "{{p30.injected_expected}} expected.")},
+    # ------------------------------------------------- v65: the factor of 25 stays only where it is explained
+    # The ratio of 2.67 s to 104 ms compares a window the poller inflates
+    # (Scenario A) with one it barely touches (the bridge). The abstract,
+    # Section I and Section X now give the two measured quantities instead;
+    # Section VI-C keeps the factor with its conditions stated.
+    {"kind": "abstract",
+     "find": "The bridge’s healthy-path window is roughly 25 times the stack’s as measured.",
+     "new": "The bridge’s healthy-path window is 2.67 s."},
+    {"kind": "para_sub",
+     "old_prefix": "• A ledger-anchored bridge, built on the Fabric topology",
+     "find": ("We report that the bridge’s window is about 25 times longer than the uncoordinated baseline’s as both "
+              "are measured when nothing fails, and more against the baseline’s system bound,"),
+     "new": "We report that the bridge’s healthy-path window is 2.67 s against a stack that closes within about 30 ms,"},
+    {"kind": "para_sub",
+     "old_prefix": "On the healthy path the bridge is slower, and by a wide margin:",
+     "find": "a drift window of 2.67 s against Scenario A’s 104 ms at the same scale, a factor of roughly 25.",
+     "new": ("a drift window of 2.67 s against Scenario A’s 104 ms as both are measured under 10 ms polling — a factor "
+             "of roughly 25 on the measured values, and more against the stack’s system bound of about 30 ms "
+             "(Section VI-B), since the poller slows Scenario A and leaves the bridge almost untouched.")},
+    {"kind": "para_sub",
+     "old_prefix": "The proposed bridge’s window is about 25 times longer than the stack’s as measured",
+     "find": ("The proposed bridge’s window is about 25 times longer than the stack’s as measured on the healthy path, "
+              "and more against the stack’s system bound of about 30 ms."),
+     "new": "The proposed bridge’s healthy-path window is 2.67 s, against a stack whose window is bounded at about 30 ms."},
 ]
 
 # Reference list changes (D6). Keys are the v57 numbers.

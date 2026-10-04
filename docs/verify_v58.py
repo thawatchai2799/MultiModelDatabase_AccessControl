@@ -282,8 +282,9 @@ def main():
     eq("Table V hit->leaked", t5["Of the trials that were hit, how many leaked without bound"][1], f"{sA['k']} of {sA['k']}")
     eq("Table V window", t5["Median window of the trials that closed ‖"][1], f"{sA['win'] * 1000:.0f} ms")
     t6 = {r[0]: r[1:] for r in table_rows(find_table(doc, "", header1="A healthy"))}
-    eq("Table VI A faulty window", t6["Drift window observed at 10 ms polling ‡"][2], f"{sA['win']:.3f} s")
-    eq("Table VI C faulty window 10K", t6["Drift window observed at 10 ms polling ‡"][3].split(" / ")[-1], f"{sCled['win']:.2f} s")
+    drow = [k for k in t6 if k.startswith("Drift window observed at 10 ms polling")][0]
+    eq("Table VI A faulty window 10K", t6[drow][2].split(" / ")[-1], f"{sA['win']:.3f} s")
+    eq("Table VI C faulty window 10K", t6[drow][3].split(" / ")[-1], f"{sCled['win']:.2f} s")
     eq("Table VI C faulty bound 10K", t6["Leak Window, system bound (10K) †"][3], f"{sCled['win']:.2f} s")
     lo2, hi2 = sCled["ci"]
     eq("Table VI A unbounded", t6["Unbounded leaks at 10K"][2], f"{sA['k']} of {sA['n']} [{lo:.2f}, {hi:.2f}]")

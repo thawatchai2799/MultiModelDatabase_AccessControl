@@ -567,6 +567,37 @@ words. The acknowledgment's AI-use declaration is made for both authors
 ("The authors used ... the authors' own, and the authors reviewed ...").
 Eight changed lines against v62; `verify_v58.py` 0 mismatches.
 
+### v64 (4 October, 23:10) -- the factor of 25 is a ratio of measured windows
+
+Three points from a third editor-style reading (90/100, minor revision),
+all wording: (1) Scenario A's 104 ms is its window under 10 ms polling
+and its system bound is <= 30 ms, so "25 times" flatters the bridge; the
+abstract, Section I and Section X now say "as measured" and the two
+body sentences add "and more against the stack's system bound". (2)
+Table VI's row of 1K / 10K pairs says so in its label, and the A-faulty
+cell carries its 1K value (Table V's 79 ms) beside the 10K one. (3) The
+Faulty bullet of Section V-C says that the schedule's value for a
+(seed, layer, attempt) is a uniform draw from a generator seeded by the
+triple compared against p -- independent draws, fixed per seed -- and
+reports the observed count of seeds with a first-attempt failure (36,
+from the schedule) against the model's expectation (32.9 = 50 x (1 -
+0.7^3), computed in `build_v58.py` as `injected_expected`). Abstract 249
+words; ten changed lines against v63; `verify_v58.py` 0 mismatches (its
+Table VI check follows the new row label).
+
+### v65 (4 October, 23:15) -- the factor of 25 only where it is explained
+
+The ratio of 2.67 s to 104 ms compares a window the poller inflates
+(Scenario A, system bound <= 30 ms) with one it barely touches (the
+bridge), so even "as measured" left it flattering the bridge. The
+abstract, Section I and Section X now give the measured quantities
+themselves (2.67 s against a stack that closes within about 30 ms);
+Section VI-C keeps "a factor of roughly 25" with its conditions stated
+in the same sentence. No number changed; abstract 244 words; eight
+changed lines against v64; `verify_v58.py` 0 mismatches. This closes
+the last point of the third editor-style reading; the paper is submitted
+as v65.
+
 ### Not done, and why
 
 - **Network delay, packet loss, process crash** (the "single host"
