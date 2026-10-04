@@ -594,6 +594,31 @@ EDITS = [
     {"kind": "abstract",
      "find": "trials at 10,000 records, p = 0.30.",
      "new": "valid trials at 10,000 records, p = 0.30."},
+    # ------------------------------------------------- v63: "25 times slower" names its quantity; both authors
+    # The factor of 25 is the healthy-path drift window (2.67 s against
+    # 104 ms, Section VI-C); caller-observed latency is about 35x (Table X).
+    # "Slower" alone let a reader take it for the latency.
+    {"kind": "abstract",
+     "find": "The bridge is roughly 25 times slower on the healthy path.",
+     "new": "The bridge’s healthy-path window is roughly 25 times longer."},
+    {"kind": "para_sub",
+     "old_prefix": "• A ledger-anchored bridge, built on the Fabric topology",
+     "find": "We report that the bridge is about 25 times slower than the uncoordinated baseline when nothing fails,",
+     "new": "We report that the bridge’s window is about 25 times longer than the uncoordinated baseline’s when nothing fails,"},
+    {"kind": "para_sub",
+     "old_prefix": "The proposed bridge is about 25 times slower on the healthy path.",
+     "find": "The proposed bridge is about 25 times slower on the healthy path.",
+     "new": "The proposed bridge’s window is about 25 times longer on the healthy path."},
+    # The declaration is made for both authors, who both reviewed the manuscript.
+    {"kind": "para",
+     "old": ("The author used a large language model (Anthropic Claude) to assist with language editing, the "
+             "derivation and rendering of figures, and the drafting of code. All technical content, mathematical "
+             "derivations, and experimental design are the author’s own, and the author reviewed and verified all "
+             "text in the final manuscript."),
+     "new": ("The authors used a large language model (Anthropic Claude) to assist with language editing, the "
+             "derivation and rendering of figures, and the drafting of code. All technical content, mathematical "
+             "derivations, and experimental design are the authors’ own, and the authors reviewed and verified all "
+             "text in the final manuscript.")},
 ]
 
 # Reference list changes (D6). Keys are the v57 numbers.

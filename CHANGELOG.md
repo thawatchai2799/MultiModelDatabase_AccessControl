@@ -556,6 +556,17 @@ template's "10.1109/ACCESS.2026.DOI" and "xxxx 00, 0000" on page 1 are
 IEEE Access's own placeholders and stay. Four changed lines against v61;
 `verify_v58.py` 0 mismatches.
 
+### v63 (4 October, 23:00) -- the factor of 25 names its quantity
+
+"The bridge is roughly 25 times slower on the healthy path" (abstract,
+Section I, Section X) is the drift window (2.67 s against 104 ms,
+Section VI-C); caller-observed latency is about 35x (Table X), so
+"slower" alone could be read as the wrong quantity. The three sentences
+now say "window ... 25 times longer"; no number changed, abstract 246
+words. The acknowledgment's AI-use declaration is made for both authors
+("The authors used ... the authors' own, and the authors reviewed ...").
+Eight changed lines against v62; `verify_v58.py` 0 mismatches.
+
 ### Not done, and why
 
 - **Network delay, packet loss, process crash** (the "single host"
