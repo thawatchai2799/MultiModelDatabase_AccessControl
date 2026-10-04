@@ -598,6 +598,37 @@ changed lines against v64; `verify_v58.py` 0 mismatches. This closes
 the last point of the third editor-style reading; the paper is submitted
 as v65.
 
+### v66 (4 October, 23:30) -- one count for Scenario B
+
+A fourth editor-style reading found what round 7 had noted and left:
+the abstract, Section I and Section X said six read paths through the
+converged engine "still serve revoked data", the contribution said four
+of six, and Section VI-A counted four of five timed paths by including
+B3 strict's 17 ms, inside the 60-160 ms resolution the paper itself
+states. From Table IV the count is four of six -- B1, B4 and B5 by a
+window well above resolution, B6 on every call -- with B3 strict at the
+edge of resolution and B2 / B3 relaxed within one polling interval. All
+five places now say so, and the garbled "B6 is not among them ...
+reported separately after the revoke has committed" sentence is
+rewritten. Also: the AI-use declaration no longer says "derivation ...
+of figures" beside "mathematical derivations are the authors' own"
+(confirmed by the author as the actual use); "authorisation" (8 body
+occurrences) is now "authorization", the title's spelling, by a new
+`replace_body` edit kind that refuses any count other than the one
+expected and never touches the reference list. Left as the authors'
+decisions: the title, the self-citations (5 of 56), and the duplicated
+reproducibility paragraphs. Abstract 246 words; `verify_v58.py` 0
+mismatches.
+
+### v67 (4 October, 23:35) -- two words
+
+"unauthorised" (Section II-C) and "authorised" (Section III-A), the two
+-ise forms the v66 spelling change did not cover, are now -ize. Nothing
+else changed; `verify_v58.py` 0 mismatches. Submitted as v67. Left as
+the authors' decisions, after a fourth reading asked again: the title,
+the self-citations (5 of 56) and the duplicated reproducibility
+paragraphs.
+
 ### Not done, and why
 
 - **Network delay, packet loss, process crash** (the "single host"

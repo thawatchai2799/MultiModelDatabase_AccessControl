@@ -679,6 +679,52 @@ EDITS = [
      "find": ("The proposed bridge’s window is about 25 times longer than the stack’s as measured on the healthy path, "
               "and more against the stack’s system bound of about 30 ms."),
      "new": "The proposed bridge’s healthy-path window is 2.67 s, against a stack whose window is bounded at about 30 ms."},
+    # ------------------------------------------------- v66: one count for Scenario B, everywhere
+    # Table IV: B1, B4 and B5 leak by a window well above the 60-160 ms
+    # resolution; B6 leaks on every call; B3 strict reached 17 ms at 10K,
+    # within the resolution the paper states (Section V-D3); B2 and B3
+    # relaxed stayed within one polling interval. So four of six read paths
+    # serve revoked data measurably -- the count the contribution already
+    # gave, now used by the abstract, Section I, Section VI-A and Section X
+    # as well (they said "six"), with the garbled B6 sentence rewritten.
+    {"kind": "abstract",
+     "find": "Consolidation does not help: six read paths through one database still serve revoked data,",
+     "new": "Consolidation does not help: four of six read paths through one database still serve revoked data,"},
+    {"kind": "para_sub",
+     "old_prefix": "One might expect that consolidating the stores would dispose of the problem,",
+     "find": "Six ordinary read paths through a single such instance still serve revoked data after the revoke has committed, and one of them does so on every attempt.",
+     "new": "Of six ordinary read paths through a single such instance, four still serve revoked data after the revoke has committed, and one of them does so on every attempt."},
+    {"kind": "para_sub",
+     "old_prefix": "• An empirical study of six leak mechanisms inside a converged engine",
+     "find": "Four of the six serve revoked data measurably. The sixth arises from connection pooling rather than from the database itself,",
+     "new": ("Four of the six serve revoked data measurably: three by a timed window and one on every call. That one "
+             "arises from connection pooling rather than from the database itself,")},
+    {"kind": "para_sub",
+     "old_prefix": "Scenario B places every record in a single PostgreSQL 18 instance",
+     "find": ("Four of those five exhibited windows above the method’s resolution in at least one tested scale — B1, "
+              "B3 under strict ordering, B4 and B5 — and the sixth read path, B6, is not among them. B6 is not among "
+              "them because it is an occurrence mechanism rather than a timed window, and is reported separately "
+              "after the revoke has committed."),
+     "new": ("Three of those five exhibited windows well above the method’s resolution — B1, B4 and B5; B3 under "
+             "strict ordering reached 17 ms at 10,000 records, at the edge of what the method resolves (Section "
+             "V-D3), and B2 and B3 under relaxed ordering stayed within one polling interval. The sixth read path, "
+             "B6, has no timed window: it is an occurrence mechanism, measured as the fraction of calls that "
+             "returned revoked data after the revoke had committed, and is reported separately. Four of the six "
+             "read paths therefore serve revoked data measurably.")},
+    {"kind": "para_sub",
+     "old_prefix": "Consolidating the stores does not dispose of the problem:",
+     "find": "six ordinary read paths through a single PostgreSQL instance still served revoked data,",
+     "new": "four of six ordinary read paths through a single PostgreSQL instance still served revoked data,"},
+    # the AI-use declaration: "derivation ... of figures" sat beside "mathematical derivations are the authors' own"
+    {"kind": "para_sub",
+     "old_prefix": "The authors used a large language model (Anthropic Claude)",
+     "find": "the derivation and rendering of figures,",
+     "new": "the scripts that render the figures,"},
+    # one spelling of the paper's own term: the title has "Authorization"
+    {"kind": "replace_body", "find": "authorisation", "new": "authorization", "expect": 8},
+    # ------------------------------------------------- v67: the two -ise forms v66 left behind
+    {"kind": "replace_body", "find": "unauthorised", "new": "unauthorized", "expect": 1},
+    {"kind": "replace_body", "find": "authorised", "new": "authorized", "expect": 1},
 ]
 
 # Reference list changes (D6). Keys are the v57 numbers.

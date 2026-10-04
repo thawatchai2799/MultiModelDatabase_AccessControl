@@ -337,6 +337,22 @@ def apply_edits(doc, v, chosen, log):
                 set_run_text(runs[2], resolve(item, v, chosen))
                 prev = new_p
             log.append(f"inserted {len(e['items'])} bullets after {e['after_prefix'][:40]!r}")
+        elif kind == "replace_body":
+            # a literal replacement in every body paragraph run (never the
+            # reference list, never a table cell); the count must be the
+            # one the author expected, so a stray hit cannot slip through
+            n = 0
+            for p in paras:
+                if p.style.name == "References":
+                    continue
+                for r in p.runs:
+                    c = r.text.count(e["find"])
+                    if c:
+                        set_run_text(r, r.text.replace(e["find"], e["new"]))
+                        n += c
+            if n != e["expect"]:
+                die(f"replace_body {e['find']!r}: replaced {n}, expected {e['expect']}")
+            log.append(f"replace_body: {e['find']!r} -> {e['new']!r} x{n}")
         elif kind == "delete":
             p = find_one(paras, lambda p, o=e["old_prefix"]: p.text.startswith(o), f"delete {e['old_prefix'][:40]!r}")
             remove_paragraph(p)
