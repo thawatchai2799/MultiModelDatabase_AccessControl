@@ -63,11 +63,14 @@ def bridge_reported_status(resource_id: str, principal_id: str, bridge_url: str)
         return {"error": str(e)}
 
 
-def set_fault_config(bridge_url: str, p: float, seed: int) -> dict:
+def set_fault_config(bridge_url: str, p: float, seed: int, schedule: str = "stream") -> dict:
     """Configures the bridge's per-attempt store-write fault injection
     (regime "faulty"; p=0 restores the healthy regime). Raises on any
-    non-200 so a run can never silently proceed with the wrong regime."""
-    resp = requests.post(f"{bridge_url}/fault-config", json={"p": p, "seed": seed}, timeout=DEFAULT_TIMEOUT_S)
+    non-200 so a run can never silently proceed with the wrong regime.
+    schedule: "stream" (original, default) or "paired" (v1.2.0, the decision
+    for (seed, layer, attempt) shared with the Python harness)."""
+    resp = requests.post(f"{bridge_url}/fault-config", json={"p": p, "seed": seed, "schedule": schedule},
+                         timeout=DEFAULT_TIMEOUT_S)
     if resp.status_code == 404:
         raise RuntimeError(
             "bridge has no /fault-config endpoint -- the running container predates the regime support. "
@@ -77,6 +80,13 @@ def set_fault_config(bridge_url: str, p: float, seed: int) -> dict:
     body = resp.json()
     if abs(float(body.get("p", -1)) - p) > 1e-9:
         raise RuntimeError(f"bridge did not apply fault p={p}: {body}")
+    # A bridge built before v1.2.0 accepts the request and ignores the
+    # schedule; it would then run the stream schedule while the file says
+    # paired. Refuse rather than mislabel.
+    if schedule != "stream" and body.get("schedule") != schedule:
+        raise RuntimeError(
+            f"bridge did not apply fault schedule={schedule!r} (it reports {body.get('schedule')!r}) -- "
+            "the running container predates the paired schedule. Rebuild it: docker compose up -d --build bridge")
     return body
 
 

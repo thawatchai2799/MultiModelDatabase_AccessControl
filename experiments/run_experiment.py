@@ -35,6 +35,7 @@ from scenarios.common.faults import AsyncVectorWorker, FaultInjector
 import scenarios.scenario_a as scenario_a
 import scenarios.scenario_b as scenario_b
 import scenarios.scenario_c as scenario_c
+import scenarios.scenario_o as scenario_o
 
 DEFAULT_TIMEOUT_S = 30.0
 DEFAULT_POLL_INTERVAL_S = 0.01
@@ -45,7 +46,11 @@ B6_REPEAT_COUNT = 50  # per (scale, seed) -- B6 is a boolean occurrence rate,
 
 # Scenario A / C regimes (PROGRESS.md decision 11). Set once per run from
 # the CLI; A-healthy is the default so nothing changes unless asked for.
-REGIME = {"name": "healthy", "fault_p": 0.0, "async_interval_s": 0.0}
+REGIME = {"name": "healthy", "fault_p": 0.0, "async_interval_s": 0.0,
+          # "stream" (original) or "paired" (v1.2.0): see scenarios/common/faults.py.
+          "fault_schedule": "stream"}
+# Scenario O's relay cadence (v1.2.0). Set once per run from the CLI.
+OUTBOX = {"poll_interval_s": 0.02}
 # Scenario C variant: does the bridge wait for propagation anchoring before
 # replying (default, so a 200 means it is on the ledger) or anchor in the
 # background? Set once per run from the CLI and applied per trial.
@@ -80,7 +85,8 @@ def fault_seed(scale: int, seed: int) -> int:
 
 
 def regime_extra() -> dict:
-    return {"regime": REGIME["name"], "fault_p": REGIME["fault_p"], "async_interval_s": REGIME["async_interval_s"]}
+    return {"regime": REGIME["name"], "fault_p": REGIME["fault_p"], "async_interval_s": REGIME["async_interval_s"],
+            "fault_schedule": REGIME["fault_schedule"] if REGIME["name"] == "faulty" else None}
 
 
 def restore_acl_ac(resource_id: str, principal_id: str, conns: dict) -> None:
@@ -195,7 +201,8 @@ def run_trial_a(scale: int, seed: int, writer: ResultsWriter) -> None:
     # client object (pg / mongo / qdrant), so the three threads never share.
     poll_conns = scenario_a.open_connections()
     revoke_conns = scenario_a.open_connections()
-    faults = FaultInjector(REGIME["fault_p"], fault_seed(scale, seed)) if REGIME["name"] == "faulty" else None
+    faults = (FaultInjector(REGIME["fault_p"], fault_seed(scale, seed), schedule=REGIME["fault_schedule"])
+              if REGIME["name"] == "faulty" else None)
     worker = AsyncVectorWorker(REGIME["async_interval_s"]) if REGIME["name"] == "async" else None
     phase_s = None
     try:
@@ -248,7 +255,8 @@ def run_trial_c(scale: int, seed: int, bridge_url: str, writer: ResultsWriter) -
     # Configure the bridge BEFORE opening connections: it raises if the
     # bridge is unreachable or did not apply the regime, and nothing should
     # be left open in that case.
-    scenario_c.set_fault_config(bridge_url, c_p, fault_seed(scale, seed))
+    scenario_c.set_fault_config(bridge_url, c_p, fault_seed(scale, seed),
+                                schedule=REGIME["fault_schedule"] if c_regime == "faulty" else "stream")
     scenario_c.set_anchor_config(bridge_url, ANCHOR_ASYNC["enabled"])
     conns = scenario_c.open_connections()
     try:
@@ -288,6 +296,7 @@ def run_trial_c(scale: int, seed: int, bridge_url: str, writer: ResultsWriter) -
                             t_issued, revoke_latency_s, results,
                             extra_common={"bridge_response": bridge_response, "bridge_status": bridge_status,
                                           "regime": c_regime, "fault_p": c_p, "async_interval_s": 0.0,
+                                          "fault_schedule": REGIME["fault_schedule"] if c_regime == "faulty" else None,
                                           "bridge_fault_stats": fault_stats,
                                           "fabric_batch_timeout": fabric_config().get("batch_timeout"),
                                           "anchor_mode": "async" if ANCHOR_ASYNC["enabled"] else "sync",
@@ -311,6 +320,72 @@ def run_trial_c(scale: int, seed: int, bridge_url: str, writer: ResultsWriter) -
                 scenario_c.set_anchor_config(bridge_url, False)   # ...nor in async anchoring mode
             except Exception as e:
                 print(f"  [c] WARNING: could not reset bridge config: {e}")
+
+
+# ---------------------------------------------------------------------------
+# Scenario O -- transactional outbox (v1.2.0)
+# ---------------------------------------------------------------------------
+
+def run_trial_o(scale: int, seed: int, writer: ResultsWriter) -> None:
+    resource, principal = pick_trial_subject(scale, seed)
+    # Three connection sets: the pollers (one thread per layer), the revoke
+    # path (main thread), and the relay's own inside OutboxWorker. Same
+    # rule as A: a psycopg connection is never shared across threads.
+    poll_conns = scenario_o.open_connections()
+    revoke_conns = scenario_o.open_connections()
+    o_regime = "faulty" if REGIME["name"] == "faulty" else "healthy"
+    faults = (FaultInjector(REGIME["fault_p"], fault_seed(scale, seed), schedule=REGIME["fault_schedule"])
+              if o_regime == "faulty" else None)
+    worker = scenario_o.OutboxWorker(OUTBOX["poll_interval_s"], faults=faults)
+    info = {}
+    try:
+        stale = scenario_o.abandon_all_pending(revoke_conns["pg"])
+        if stale:
+            print(f"  [o] {stale} outbox row(s) left pending by an earlier run were marked abandoned before this trial")
+
+        def before():
+            worker.start()
+
+        def do_revoke():
+            t, i = scenario_o.revoke(resource.resource_id, principal, revoke_conns, faults=faults)
+            info.update(i)
+            return t, i
+
+        check_fns = scenario_o.make_check_fns(resource.resource_id, principal, poll_conns)
+        t_issued, _, revoke_latency_s, results = measure(check_fns, do_revoke, before_revoke_fn=before)
+        status = scenario_o.outbox_status(revoke_conns["pg"], resource.resource_id, principal,
+                                          event_id=info.get("event_id"))
+        extra = {"regime": o_regime, "fault_p": REGIME["fault_p"] if o_regime == "faulty" else 0.0,
+                 "async_interval_s": 0.0,
+                 "fault_schedule": REGIME["fault_schedule"] if o_regime == "faulty" else None,
+                 "outbox_poll_interval_s": OUTBOX["poll_interval_s"],
+                 "outbox_revoke": info,
+                 # The relay's per-layer attempts and the application's own
+                 # verdict -- the analogue of bridge_fault_stats and
+                 # bridge_status, under their own names so nothing built for
+                 # the bridge can mistake this for a bridge run.
+                 "outbox_worker": worker.stats(),
+                 "outbox_status": status}
+        if faults is not None:
+            extra["injected_failed_layers"] = faults.failed_layers()
+        write_layer_results(writer, "o", scale, seed, resource.resource_id, principal,
+                            t_issued, revoke_latency_s, results, extra_common=extra)
+        if worker.error:
+            print(f"  [o] WARNING: relay thread died: {worker.error}")
+    finally:
+        worker.stop()      # before the restore: a relay still running would re-apply the revoke
+        try:
+            if info.get("event_id"):
+                try:
+                    n = scenario_o.abandon_event(revoke_conns["pg"], info["event_id"])
+                    if n:
+                        print(f"  [o] {n} outbox row(s) still pending at trial end, marked abandoned")
+                except Exception as e:
+                    print(f"  [o] WARNING: could not abandon pending outbox rows: {e}")
+            restore_acl_ac(resource.resource_id, principal, revoke_conns)
+        finally:
+            scenario_o.close_connections(poll_conns)
+            scenario_o.close_connections(revoke_conns)
 
 
 # ---------------------------------------------------------------------------
@@ -495,13 +570,14 @@ SCENARIO_RUNNERS = {
     "b5": lambda scale, seed, w, **kw: run_trial_b5(scale, seed, w),
     "b6": lambda scale, seed, w, **kw: run_trial_b6(scale, seed, w),
     "c": lambda scale, seed, w, bridge_url="http://localhost:8080", **kw: run_trial_c(scale, seed, bridge_url, w),
+    "o": lambda scale, seed, w, **kw: run_trial_o(scale, seed, w),
 }
 
 
 def main():
     global DEFAULT_POLL_INTERVAL_S
     ap = argparse.ArgumentParser()
-    ap.add_argument("--scenarios", required=True, help="comma-separated: a,b1,b2,b3,b4,b5,b6,c")
+    ap.add_argument("--scenarios", required=True, help="comma-separated: a,b1,b2,b3,b4,b5,b6,c,o")
     ap.add_argument("--scales", required=True, help="comma-separated resource counts")
     ap.add_argument("--seeds", required=True, help="comma-separated seed integers")
     ap.add_argument("--bridge-url", default="http://localhost:8080")
@@ -521,6 +597,12 @@ def main():
                          "records in the background. Faster, but a 200 no longer means the propagation is "
                          "on the ledger. The revoke event itself is still anchored fail-closed (decision 5).")
     ap.add_argument("--fault-p", type=float, default=0.10, help="per-attempt store-write failure probability (regime faulty)")
+    ap.add_argument("--fault-schedule", choices=["stream", "paired"], default="stream",
+                    help="regime faulty: 'stream' (original; A and the bridge draw different failures at the "
+                         "same rate) or 'paired' (v1.2.0; attempt k of a layer fails in every scenario or in "
+                         "none, so A, O and C face the same failures and can be compared as matched pairs)")
+    ap.add_argument("--outbox-poll-s", type=float, default=OUTBOX["poll_interval_s"],
+                    help="Scenario O: relay poll interval in seconds (default 0.02)")
     ap.add_argument("--async-interval-s", type=float, default=2.0, help="vector batch-worker flush interval (regime async)")
     args = ap.parse_args()
 
@@ -533,15 +615,19 @@ def main():
     REGIME["name"] = args.regime
     REGIME["fault_p"] = args.fault_p if args.regime == "faulty" else 0.0
     REGIME["async_interval_s"] = args.async_interval_s if args.regime == "async" else 0.0
+    REGIME["fault_schedule"] = args.fault_schedule
+    if args.outbox_poll_s <= 0:
+        print("--outbox-poll-s must be > 0"); sys.exit(1)
+    OUTBOX["poll_interval_s"] = args.outbox_poll_s
     if args.regime == "faulty" and not 0.0 < args.fault_p <= 1.0:
         print("--fault-p must be in (0, 1] for regime faulty"); sys.exit(1)
     if args.regime == "async" and args.async_interval_s <= 0:
         print("--async-interval-s must be > 0 for regime async"); sys.exit(1)
     if args.regime != "healthy":
         print(f"Regime: {REGIME}")
-        non_ac = [x for x in args.scenarios.split(",") if x not in ("a", "c")]
+        non_ac = [x for x in args.scenarios.split(",") if x not in ("a", "c", "o")]
         if non_ac:
-            print(f"  NOTE: --regime only affects scenarios a and c; {non_ac} run unchanged and their "
+            print(f"  NOTE: --regime only affects scenarios a, c and o; {non_ac} run unchanged and their "
                   f"records carry no regime tag.")
     if args.regime == "async" and "c" in args.scenarios.split(","):
         print("  NOTE: Scenario C has no async regime (the bridge is what replaces an async pipeline); "

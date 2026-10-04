@@ -17,6 +17,10 @@ services:
       - ./postgres/primary/postgresql.conf:/etc/postgresql/postgresql.conf:ro
       - ./postgres/primary/pg_hba.conf:/etc/postgresql/pg_hba.conf:ro
       - ./postgres/primary/init.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
+      # Scenario O's outbox table (v1.2.0). Runs after 01-init.sql on a fresh
+      # volume only; an existing cluster needs it applied once by hand (the
+      # file's header says how), which experiments/check_env.py verifies.
+      - ./postgres/primary/outbox.sql:/docker-entrypoint-initdb.d/02-outbox.sql:ro
       - pg-primary-data:/var/lib/postgresql/data
     command: >
       postgres -c config_file=/etc/postgresql/postgresql.conf

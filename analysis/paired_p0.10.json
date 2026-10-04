@@ -1,0 +1,2545 @@
+{
+  "configs": [
+    [
+      "A",
+      [
+        "results/paired_p0.10_none-noretry.jsonl"
+      ]
+    ],
+    [
+      "O",
+      [
+        "results/paired_p0.10_none-noretry.jsonl"
+      ]
+    ],
+    [
+      "C no retry",
+      [
+        "results/paired_p0.10_none-noretry.jsonl"
+      ]
+    ],
+    [
+      "C retry",
+      [
+        "results/paired_p0.10_none.jsonl"
+      ]
+    ],
+    [
+      "C log",
+      [
+        "results/paired_p0.10_log.jsonl"
+      ]
+    ],
+    [
+      "C ledger",
+      [
+        "results/paired_p0.10_ledger.jsonl"
+      ]
+    ]
+  ],
+  "reference": "A",
+  "by_p": {
+    "0.1": {
+      "reference": "A",
+      "configs": {
+        "A": {
+          "n": 50,
+          "leaked_without_bound": 16,
+          "rate": 0.32,
+          "wilson_ci95": [
+            0.20758044093999403,
+            0.45810557136276076
+          ],
+          "n_closed": 34,
+          "drift_window_median_s": 0.2640402554989123,
+          "drift_window_ci95": [
+            0.19895825949970458,
+            0.3317349450007896
+          ],
+          "revoke_latency_median_s": 0.2167034549984237,
+          "revoke_latency_ci95": [
+            0.1662034050004877,
+            0.2895842239995545
+          ],
+          "bridge_total_median_s": null,
+          "layers_leaked": {
+            "nosql": 4,
+            "relational": 5,
+            "vector": 9
+          },
+          "leaked_seeds": [
+            1,
+            3,
+            6,
+            9,
+            10,
+            13,
+            20,
+            21,
+            26,
+            28,
+            30,
+            31,
+            33,
+            34,
+            46,
+            48
+          ],
+          "trials": [
+            {
+              "seed": 1,
+              "leaked_layers": [
+                "relational"
+              ],
+              "drift_window_s": null,
+              "revoke_latency_s": 0.1522248960009165
+            },
+            {
+              "seed": 2,
+              "leaked_layers": [],
+              "drift_window_s": 0.2899625800000649,
+              "revoke_latency_s": 0.3377976199990371
+            },
+            {
+              "seed": 3,
+              "leaked_layers": [
+                "nosql",
+                "vector"
+              ],
+              "drift_window_s": null,
+              "revoke_latency_s": 0.028160363001006772
+            },
+            {
+              "seed": 4,
+              "leaked_layers": [],
+              "drift_window_s": 0.22012665500005824,
+              "revoke_latency_s": 0.23918290700021316
+            },
+            {
+              "seed": 5,
+              "leaked_layers": [],
+              "drift_window_s": 0.3235605480003869,
+              "revoke_latency_s": 0.41221401499933563
+            },
+            {
+              "seed": 6,
+              "leaked_layers": [
+                "relational"
+              ],
+              "drift_window_s": null,
+              "revoke_latency_s": 0.06116226800077129
+            },
+            {
+              "seed": 7,
+              "leaked_layers": [],
+              "drift_window_s": 0.5261778330004745,
+              "revoke_latency_s": 0.5404359660005866
+            },
+            {
+              "seed": 8,
+              "leaked_layers": [],
+              "drift_window_s": 0.11439519100167672,
+              "revoke_latency_s": 0.1467225430005783
+            },
+            {
+              "seed": 9,
+              "leaked_layers": [
+                "vector"
+              ],
+              "drift_window_s": null,
+              "revoke_latency_s": 0.10740944700046384
+            },
+            {
+              "seed": 10,
+              "leaked_layers": [
+                "vector"
+              ],
+              "drift_window_s": null,
+              "revoke_latency_s": 0.14923064399772556
+            },
+            {
+              "seed": 11,
+              "leaked_layers": [],
+              "drift_window_s": 0.21573498300131178,
+              "revoke_latency_s": 0.2895842239995545
+            },
+            {
+              "seed": 12,
+              "leaked_layers": [],
+              "drift_window_s": 0.10544807100086473,
+              "revoke_latency_s": 0.11438860699854558
+            },
+            {
+              "seed": 13,
+              "leaked_layers": [
+                "vector"
+              ],
+              "drift_window_s": null,
+              "revoke_latency_s": 0.10062603500045952
+            },
+            {
+              "seed": 14,
+              "leaked_layers": [],
+              "drift_window_s": 0.14113231800001813,
+              "revoke_latency_s": 0.14794463699945481
+            },
+            {
+              "seed": 15,
+              "leaked_layers": [],
+              "drift_window_s": 0.1821815359980974,
+              "revoke_latency_s": 0.18849165099891252
+            },
+            {
+              "seed": 16,
+              "leaked_layers": [],
+              "drift_window_s": 0.3504470580010093,
+              "revoke_latency_s": 0.35795589099870995
+            },
+            {
+              "seed": 17,
+              "leaked_layers": [],
+              "drift_window_s": 0.1465160650004691,
+              "revoke_latency_s": 0.16218139299962786
+            },
+            {
+              "seed": 18,
+              "leaked_layers": [],
+              "drift_window_s": 0.33649352499924134,
+              "revoke_latency_s": 0.36585424700024305
+            },
+            {
+              "seed": 19,
+              "leaked_layers": [],
+              "drift_window_s": 0.216666289998102,
+              "revoke_latency_s": 0.2208974639979715
+            },
+            {
+              "seed": 20,
+              "leaked_layers": [
+                "vector"
+              ],
+              "drift_window_s": null,
+              "revoke_latency_s": 0.22655374700116226
+            },
+            {
+              "seed": 21,
+              "leaked_layers": [
+                "vector"
+              ],
+              "drift_window_s": null,
+              "revoke_latency_s": 0.13494988899765303
+            },
+            {
+              "seed": 22,
+              "leaked_layers": [],
+              "drift_window_s": 0.42172977500013076,
+              "revoke_latency_s": 0.4707478739983344
+            },
+            {
+              "seed": 23,
+              "leaked_layers": [],
+              "drift_window_s": 0.33825182899818174,
+              "revoke_latency_s": 0.418115153999679
+            },
+            {
+              "seed": 24,
+              "leaked_layers": [],
+              "drift_window_s": 0.25086421000014525,
+              "revoke_latency_s": 0.25462872599746333
+            },
+            {
+              "seed": 25,
+              "leaked_layers": [],
+              "drift_window_s": 0.24429203999898164,
+              "revoke_latency_s": 0.24973940599738853
+            },
+            {
+              "seed": 26,
+              "leaked_layers": [
+                "relational"
+              ],
+              "drift_window_s": null,
+              "revoke_latency_s": 0.1543983900010062
+            },
+            {
+              "seed": 27,
+              "leaked_layers": [],
+              "drift_window_s": 0.27721630099767935,
+              "revoke_latency_s": 0.3256535869986692
+            },
+            {
+              "seed": 28,
+              "leaked_layers": [
+                "nosql"
+              ],
+              "drift_window_s": null,
+              "revoke_latency_s": 0.1295615259987244
+            },
+            {
+              "seed": 29,
+              "leaked_layers": [],
+              "drift_window_s": 0.5601618869986851,
+              "revoke_latency_s": 0.642248602998734
+            },
+            {
+              "seed": 30,
+              "leaked_layers": [
+                "vector"
+              ],
+              "drift_window_s": null,
+              "revoke_latency_s": 0.18143817199961632
+            },
+            {
+              "seed": 31,
+              "leaked_layers": [
+                "vector"
+              ],
+              "drift_window_s": null,
+              "revoke_latency_s": 0.1252687539999897
+            },
+            {
+              "seed": 32,
+              "leaked_layers": [],
+              "drift_window_s": 0.38285216099757235,
+              "revoke_latency_s": 0.412257508996845
+            },
+            {
+              "seed": 33,
+              "leaked_layers": [
+                "relational"
+              ],
+              "drift_window_s": null,
+              "revoke_latency_s": 0.3012150320028013
+            },
+            {
+              "seed": 34,
+              "leaked_layers": [
+                "nosql",
+                "relational"
+              ],
+              "drift_window_s": null,
+              "revoke_latency_s": 0.223257948000537
+            },
+            {
+              "seed": 35,
+              "leaked_layers": [],
+              "drift_window_s": 0.4715767810012039,
+              "revoke_latency_s": 0.48655076700015343
+            },
+            {
+              "seed": 36,
+              "leaked_layers": [],
+              "drift_window_s": 0.31412510000154725,
+              "revoke_latency_s": 0.3693488930002786
+            },
+            {
+              "seed": 37,
+              "leaked_layers": [],
+              "drift_window_s": 0.20230172599985963,
+              "revoke_latency_s": 0.2125094459988759
+            },
+            {
+              "seed": 38,
+              "leaked_layers": [],
+              "drift_window_s": 0.17896254399965983,
+              "revoke_latency_s": 0.18718316899685306
+            },
+            {
+              "seed": 39,
+              "leaked_layers": [],
+              "drift_window_s": 0.10726149699985399,
+              "revoke_latency_s": 0.1706353030022001
+            },
+            {
+              "seed": 40,
+              "leaked_layers": [],
+              "drift_window_s": 0.137041729001794,
+              "revoke_latency_s": 0.17190752100214013
+            },
+            {
+              "seed": 41,
+              "leaked_layers": [],
+              "drift_window_s": 0.424963020002906,
+              "revoke_latency_s": 0.42609009200168657
+            },
+            {
+              "seed": 42,
+              "leaked_layers": [],
+              "drift_window_s": 0.1351314880012069,
+              "revoke_latency_s": 0.14533306200246443
+            },
+            {
+              "seed": 43,
+              "leaked_layers": [],
+              "drift_window_s": 0.16079069100305787,
+              "revoke_latency_s": 0.17022541700134752
+            },
+            {
+              "seed": 44,
+              "leaked_layers": [],
+              "drift_window_s": 0.5599976990015421,
+              "revoke_latency_s": 0.5642413019995729
+            },
+            {
+              "seed": 45,
+              "leaked_layers": [],
+              "drift_window_s": 0.12597786099649966,
+              "revoke_latency_s": 0.13092657800007146
+            },
+            {
+              "seed": 46,
+              "leaked_layers": [
+                "vector"
+              ],
+              "drift_window_s": null,
+              "revoke_latency_s": 0.06361215699871536
+            },
+            {
+              "seed": 47,
+              "leaked_layers": [],
+              "drift_window_s": 0.3317349450007896,
+              "revoke_latency_s": 0.3560937850015762
+            },
+            {
+              "seed": 48,
+              "leaked_layers": [
+                "nosql"
+              ],
+              "drift_window_s": null,
+              "revoke_latency_s": 0.10680422299992642
+            },
+            {
+              "seed": 49,
+              "leaked_layers": [],
+              "drift_window_s": 0.3504510390012001,
+              "revoke_latency_s": 0.3814464759998373
+            },
+            {
+              "seed": 50,
+              "leaked_layers": [],
+              "drift_window_s": 0.29633305500101415,
+              "revoke_latency_s": 0.3071747639987734
+            }
+          ],
+          "fault_schedule": [
+            "paired"
+          ],
+          "fault_p": [
+            0.1
+          ],
+          "scale": [
+            10000
+          ]
+        },
+        "O": {
+          "n": 50,
+          "leaked_without_bound": 0,
+          "rate": 0.0,
+          "wilson_ci95": [
+            0.0,
+            0.07135003417431873
+          ],
+          "n_closed": 50,
+          "drift_window_median_s": 0.4475257309995868,
+          "drift_window_ci95": [
+            0.37275645199952123,
+            0.5032492089994776
+          ],
+          "revoke_latency_median_s": 0.1520449274994462,
+          "revoke_latency_ci95": [
+            0.13819647900163545,
+            0.1724891790008769
+          ],
+          "bridge_total_median_s": null,
+          "layers_leaked": {},
+          "self_report": {
+            "n": 50,
+            "cells": {
+              "true_containment": 50
+            },
+            "false_containment": 0,
+            "false_non_containment": 0,
+            "attributed": 0,
+            "attributable": 0
+          },
+          "leaked_seeds": [],
+          "trials": [
+            {
+              "seed": 1,
+              "leaked_layers": [],
+              "drift_window_s": 0.3211025990003691,
+              "revoke_latency_s": 0.15263992600011989
+            },
+            {
+              "seed": 2,
+              "leaked_layers": [],
+              "drift_window_s": 0.4390357669999503,
+              "revoke_latency_s": 0.14060744699963834
+            },
+            {
+              "seed": 3,
+              "leaked_layers": [],
+              "drift_window_s": 0.8114942419997533,
+              "revoke_latency_s": 0.206093108999994
+            },
+            {
+              "seed": 4,
+              "leaked_layers": [],
+              "drift_window_s": 0.6059503110009246,
+              "revoke_latency_s": 0.190309301000525
+            },
+            {
+              "seed": 5,
+              "leaked_layers": [],
+              "drift_window_s": 0.5044090720002714,
+              "revoke_latency_s": 0.13647380899965356
+            },
+            {
+              "seed": 6,
+              "leaked_layers": [],
+              "drift_window_s": 0.37275645199952123,
+              "revoke_latency_s": 0.15850243699969724
+            },
+            {
+              "seed": 7,
+              "leaked_layers": [],
+              "drift_window_s": 0.44274526499975764,
+              "revoke_latency_s": 0.18171044299924688
+            },
+            {
+              "seed": 8,
+              "leaked_layers": [],
+              "drift_window_s": 0.49073779699938314,
+              "revoke_latency_s": 0.16549477000080515
+            },
+            {
+              "seed": 9,
+              "leaked_layers": [],
+              "drift_window_s": 0.5395296320002672,
+              "revoke_latency_s": 0.1704361100000824
+            },
+            {
+              "seed": 10,
+              "leaked_layers": [],
+              "drift_window_s": 0.8604533890029415,
+              "revoke_latency_s": 0.24470237600326072
+            },
+            {
+              "seed": 11,
+              "leaked_layers": [],
+              "drift_window_s": 0.62093761199867,
+              "revoke_latency_s": 0.17571662800037302
+            },
+            {
+              "seed": 12,
+              "leaked_layers": [],
+              "drift_window_s": 0.5869009730013204,
+              "revoke_latency_s": 0.2066140990027634
+            },
+            {
+              "seed": 13,
+              "leaked_layers": [],
+              "drift_window_s": 0.26692586899662274,
+              "revoke_latency_s": 0.011538345999724697
+            },
+            {
+              "seed": 14,
+              "leaked_layers": [],
+              "drift_window_s": 0.17565492699941387,
+              "revoke_latency_s": 0.010674938999727601
+            },
+            {
+              "seed": 15,
+              "leaked_layers": [],
+              "drift_window_s": 0.433482903001277,
+              "revoke_latency_s": 0.15842448300099932
+            },
+            {
+              "seed": 16,
+              "leaked_layers": [],
+              "drift_window_s": 0.42347876399799134,
+              "revoke_latency_s": 0.19702385699929437
+            },
+            {
+              "seed": 17,
+              "leaked_layers": [],
+              "drift_window_s": 0.15456133400221006,
+              "revoke_latency_s": 0.05393700000058743
+            },
+            {
+              "seed": 18,
+              "leaked_layers": [],
+              "drift_window_s": 0.36485301200082176,
+              "revoke_latency_s": 0.06491466599982232
+            },
+            {
+              "seed": 19,
+              "leaked_layers": [],
+              "drift_window_s": 0.5720004569993762,
+              "revoke_latency_s": 0.060389473001123406
+            },
+            {
+              "seed": 20,
+              "leaked_layers": [],
+              "drift_window_s": 0.5595774689973041,
+              "revoke_latency_s": 0.04082630499760853
+            },
+            {
+              "seed": 21,
+              "leaked_layers": [],
+              "drift_window_s": 0.48408495699914056,
+              "revoke_latency_s": 0.1475246590016468
+            },
+            {
+              "seed": 22,
+              "leaked_layers": [],
+              "drift_window_s": 0.6028851959999884,
+              "revoke_latency_s": 0.18857419599953573
+            },
+            {
+              "seed": 23,
+              "leaked_layers": [],
+              "drift_window_s": 0.13681485900087864,
+              "revoke_latency_s": 0.011516539001604542
+            },
+            {
+              "seed": 24,
+              "leaked_layers": [],
+              "drift_window_s": 0.2610963770021044,
+              "revoke_latency_s": 0.0996690280007897
+            },
+            {
+              "seed": 25,
+              "leaked_layers": [],
+              "drift_window_s": 0.36007497099853936,
+              "revoke_latency_s": 0.016980467000394128
+            },
+            {
+              "seed": 26,
+              "leaked_layers": [],
+              "drift_window_s": 0.8578654930024641,
+              "revoke_latency_s": 0.25749017000271124
+            },
+            {
+              "seed": 27,
+              "leaked_layers": [],
+              "drift_window_s": 0.3260192339985224,
+              "revoke_latency_s": 0.1517318529986369
+            },
+            {
+              "seed": 28,
+              "leaked_layers": [],
+              "drift_window_s": 0.4411618999984057,
+              "revoke_latency_s": 0.18149293899841723
+            },
+            {
+              "seed": 29,
+              "leaked_layers": [],
+              "drift_window_s": 0.3624486070002604,
+              "revoke_latency_s": 0.1745422480016714
+            },
+            {
+              "seed": 30,
+              "leaked_layers": [],
+              "drift_window_s": 0.3672053890004463,
+              "revoke_latency_s": 0.2540092369999911
+            },
+            {
+              "seed": 31,
+              "leaked_layers": [],
+              "drift_window_s": 0.30884710299869766,
+              "revoke_latency_s": 0.10776046399769257
+            },
+            {
+              "seed": 32,
+              "leaked_layers": [],
+              "drift_window_s": 0.4856742119991395,
+              "revoke_latency_s": 0.05540194899731432
+            },
+            {
+              "seed": 33,
+              "leaked_layers": [],
+              "drift_window_s": 0.6751966060000996,
+              "revoke_latency_s": 0.2988875070004724
+            },
+            {
+              "seed": 34,
+              "leaked_layers": [],
+              "drift_window_s": 0.533340041001793,
+              "revoke_latency_s": 0.1414313690002018
+            },
+            {
+              "seed": 35,
+              "leaked_layers": [],
+              "drift_window_s": 0.452306196999416,
+              "revoke_latency_s": 0.1416035020010895
+            },
+            {
+              "seed": 36,
+              "leaked_layers": [],
+              "drift_window_s": 0.5515959130025294,
+              "revoke_latency_s": 0.12513193300037528
+            },
+            {
+              "seed": 37,
+              "leaked_layers": [],
+              "drift_window_s": 0.5959865280019585,
+              "revoke_latency_s": 0.14006346099995426
+            },
+            {
+              "seed": 38,
+              "leaked_layers": [],
+              "drift_window_s": 0.4532315069991455,
+              "revoke_latency_s": 0.1207836520006822
+            },
+            {
+              "seed": 39,
+              "leaked_layers": [],
+              "drift_window_s": 0.5032492089994776,
+              "revoke_latency_s": 0.13819647900163545
+            },
+            {
+              "seed": 40,
+              "leaked_layers": [],
+              "drift_window_s": 0.45792151400019065,
+              "revoke_latency_s": 0.13586061100068036
+            },
+            {
+              "seed": 41,
+              "leaked_layers": [],
+              "drift_window_s": 0.5664826600004744,
+              "revoke_latency_s": 0.13067404699904728
+            },
+            {
+              "seed": 42,
+              "leaked_layers": [],
+              "drift_window_s": 0.40430968099826714,
+              "revoke_latency_s": 0.20558676899963757
+            },
+            {
+              "seed": 43,
+              "leaked_layers": [],
+              "drift_window_s": 0.5583042870021018,
+              "revoke_latency_s": 0.19123802600006456
+            },
+            {
+              "seed": 44,
+              "leaked_layers": [],
+              "drift_window_s": 0.21810816699871793,
+              "revoke_latency_s": 0.1523580020002555
+            },
+            {
+              "seed": 45,
+              "leaked_layers": [],
+              "drift_window_s": 0.35030767699936405,
+              "revoke_latency_s": 0.12076066000008723
+            },
+            {
+              "seed": 46,
+              "leaked_layers": [],
+              "drift_window_s": 0.3021047649999673,
+              "revoke_latency_s": 0.20256446399798733
+            },
+            {
+              "seed": 47,
+              "leaked_layers": [],
+              "drift_window_s": 0.36714247800045996,
+              "revoke_latency_s": 0.1622466999979224
+            },
+            {
+              "seed": 48,
+              "leaked_layers": [],
+              "drift_window_s": 0.6251968329997908,
+              "revoke_latency_s": 0.18317149200083804
+            },
+            {
+              "seed": 49,
+              "leaked_layers": [],
+              "drift_window_s": 0.21028688500155113,
+              "revoke_latency_s": 0.1380574909999268
+            },
+            {
+              "seed": 50,
+              "leaked_layers": [],
+              "drift_window_s": 0.2650867449992802,
+              "revoke_latency_s": 0.21305898699938552
+            }
+          ],
+          "fault_schedule": [
+            "paired"
+          ],
+          "fault_p": [
+            0.1
+          ],
+          "scale": [
+            10000
+          ]
+        },
+        "C no retry": {
+          "n": 50,
+          "leaked_without_bound": 16,
+          "rate": 0.32,
+          "wilson_ci95": [
+            0.20758044093999403,
+            0.45810557136276076
+          ],
+          "n_closed": 34,
+          "drift_window_median_s": 0.16104744449967257,
+          "drift_window_ci95": [
+            0.1280988005000836,
+            0.17363147449941607
+          ],
+          "revoke_latency_median_s": 0.17696574100045837,
+          "revoke_latency_ci95": [
+            0.15887865999866335,
+            0.20516472450162837
+          ],
+          "bridge_total_median_s": 0.154,
+          "layers_leaked": {
+            "nosql": 4,
+            "relational": 5,
+            "vector": 9
+          },
+          "leaked_seeds": [
+            1,
+            3,
+            6,
+            9,
+            10,
+            13,
+            20,
+            21,
+            26,
+            28,
+            30,
+            31,
+            33,
+            34,
+            46,
+            48
+          ],
+          "trials": [
+            {
+              "seed": 1,
+              "leaked_layers": [
+                "relational"
+              ],
+              "drift_window_s": null,
+              "revoke_latency_s": 0.203905771000791
+            },
+            {
+              "seed": 2,
+              "leaked_layers": [],
+              "drift_window_s": 0.18670685899996897,
+              "revoke_latency_s": 0.24328944700027932
+            },
+            {
+              "seed": 3,
+              "leaked_layers": [
+                "nosql",
+                "vector"
+              ],
+              "drift_window_s": null,
+              "revoke_latency_s": 0.07598658599999908
+            },
+            {
+              "seed": 4,
+              "leaked_layers": [],
+              "drift_window_s": 0.130099355999846,
+              "revoke_latency_s": 0.173669167999833
+            },
+            {
+              "seed": 5,
+              "leaked_layers": [],
+              "drift_window_s": 0.17741626700080815,
+              "revoke_latency_s": 0.274160146000213
+            },
+            {
+              "seed": 6,
+              "leaked_layers": [
+                "relational"
+              ],
+              "drift_window_s": null,
+              "revoke_latency_s": 0.18861480300074618
+            },
+            {
+              "seed": 7,
+              "leaked_layers": [],
+              "drift_window_s": 0.15702521299863292,
+              "revoke_latency_s": 0.19378603699988162
+            },
+            {
+              "seed": 8,
+              "leaked_layers": [],
+              "drift_window_s": 0.20078244899923448,
+              "revoke_latency_s": 0.24061984599939024
+            },
+            {
+              "seed": 9,
+              "leaked_layers": [
+                "vector"
+              ],
+              "drift_window_s": null,
+              "revoke_latency_s": 0.11924795900085883
+            },
+            {
+              "seed": 10,
+              "leaked_layers": [
+                "vector"
+              ],
+              "drift_window_s": null,
+              "revoke_latency_s": 0.08617385100296815
+            },
+            {
+              "seed": 11,
+              "leaked_layers": [],
+              "drift_window_s": 0.14089046799927019,
+              "revoke_latency_s": 0.16112880799846607
+            },
+            {
+              "seed": 12,
+              "leaked_layers": [],
+              "drift_window_s": 0.3064752009995573,
+              "revoke_latency_s": 0.3193145219993312
+            },
+            {
+              "seed": 13,
+              "leaked_layers": [
+                "vector"
+              ],
+              "drift_window_s": null,
+              "revoke_latency_s": 0.17471660899900598
+            },
+            {
+              "seed": 14,
+              "leaked_layers": [],
+              "drift_window_s": 0.18151159399712924,
+              "revoke_latency_s": 0.18475366399798077
+            },
+            {
+              "seed": 15,
+              "leaked_layers": [],
+              "drift_window_s": 0.12575791600102093,
+              "revoke_latency_s": 0.13259330599976238
+            },
+            {
+              "seed": 16,
+              "leaked_layers": [],
+              "drift_window_s": 0.012898158001917182,
+              "revoke_latency_s": 0.16068522400018992
+            },
+            {
+              "seed": 17,
+              "leaked_layers": [],
+              "drift_window_s": 0.171795171998383,
+              "revoke_latency_s": 0.19172537899794406
+            },
+            {
+              "seed": 18,
+              "leaked_layers": [],
+              "drift_window_s": 0.1719108960023732,
+              "revoke_latency_s": 0.1782533430014155
+            },
+            {
+              "seed": 19,
+              "leaked_layers": [],
+              "drift_window_s": 0.13043968499914627,
+              "revoke_latency_s": 0.14322936100143124
+            },
+            {
+              "seed": 20,
+              "leaked_layers": [
+                "vector"
+              ],
+              "drift_window_s": null,
+              "revoke_latency_s": 0.1252582090019132
+            },
+            {
+              "seed": 21,
+              "leaked_layers": [
+                "vector"
+              ],
+              "drift_window_s": null,
+              "revoke_latency_s": 0.06604494799830718
+            },
+            {
+              "seed": 22,
+              "leaked_layers": [],
+              "drift_window_s": 0.03801626000131364,
+              "revoke_latency_s": 0.1349712740011455
+            },
+            {
+              "seed": 23,
+              "leaked_layers": [],
+              "drift_window_s": 0.1693409210020036,
+              "revoke_latency_s": 0.29766727600144804
+            },
+            {
+              "seed": 24,
+              "leaked_layers": [],
+              "drift_window_s": 0.07008761999895796,
+              "revoke_latency_s": 0.17534953799986397
+            },
+            {
+              "seed": 25,
+              "leaked_layers": [],
+              "drift_window_s": 0.024155063001671806,
+              "revoke_latency_s": 0.13788736200149287
+            },
+            {
+              "seed": 26,
+              "leaked_layers": [
+                "relational"
+              ],
+              "drift_window_s": null,
+              "revoke_latency_s": 0.24047197400068399
+            },
+            {
+              "seed": 27,
+              "leaked_layers": [],
+              "drift_window_s": 0.15367811800024356,
+              "revoke_latency_s": 0.15662851199886063
+            },
+            {
+              "seed": 28,
+              "leaked_layers": [
+                "nosql"
+              ],
+              "drift_window_s": null,
+              "revoke_latency_s": 0.20642367800246575
+            },
+            {
+              "seed": 29,
+              "leaked_layers": [],
+              "drift_window_s": 0.1650696760007122,
+              "revoke_latency_s": 0.28379118899829336
+            },
+            {
+              "seed": 30,
+              "leaked_layers": [
+                "vector"
+              ],
+              "drift_window_s": null,
+              "revoke_latency_s": 0.18583441199734807
+            },
+            {
+              "seed": 31,
+              "leaked_layers": [
+                "vector"
+              ],
+              "drift_window_s": null,
+              "revoke_latency_s": 0.12481340300291777
+            },
+            {
+              "seed": 32,
+              "leaked_layers": [],
+              "drift_window_s": 0.3106910739988962,
+              "revoke_latency_s": 0.3476158449993818
+            },
+            {
+              "seed": 33,
+              "leaked_layers": [
+                "relational"
+              ],
+              "drift_window_s": null,
+              "revoke_latency_s": 0.27652042800036725
+            },
+            {
+              "seed": 34,
+              "leaked_layers": [
+                "nosql",
+                "relational"
+              ],
+              "drift_window_s": null,
+              "revoke_latency_s": 0.33817374799764366
+            },
+            {
+              "seed": 35,
+              "leaked_layers": [],
+              "drift_window_s": 0.19814463700095075,
+              "revoke_latency_s": 0.20862892999866745
+            },
+            {
+              "seed": 36,
+              "leaked_layers": [],
+              "drift_window_s": 0.06962350599860656,
+              "revoke_latency_s": 0.09804164099841728
+            },
+            {
+              "seed": 37,
+              "leaked_layers": [],
+              "drift_window_s": 0.010265736997098429,
+              "revoke_latency_s": 0.028202442998008337
+            },
+            {
+              "seed": 38,
+              "leaked_layers": [],
+              "drift_window_s": 0.2635419100006402,
+              "revoke_latency_s": 0.2897072500018112
+            },
+            {
+              "seed": 39,
+              "leaked_layers": [],
+              "drift_window_s": 0.16559240999777103,
+              "revoke_latency_s": 0.17567813899950124
+            },
+            {
+              "seed": 40,
+              "leaked_layers": [],
+              "drift_window_s": 0.02153222599736182,
+              "revoke_latency_s": 0.05099568600053317
+            },
+            {
+              "seed": 41,
+              "leaked_layers": [],
+              "drift_window_s": 0.16671202200086555,
+              "revoke_latency_s": 0.2797553130003507
+            },
+            {
+              "seed": 42,
+              "leaked_layers": [],
+              "drift_window_s": 0.045949523999297526,
+              "revoke_latency_s": 0.05678429800173035
+            },
+            {
+              "seed": 43,
+              "leaked_layers": [],
+              "drift_window_s": 0.26154017799854046,
+              "revoke_latency_s": 0.29952115600099205
+            },
+            {
+              "seed": 44,
+              "leaked_layers": [],
+              "drift_window_s": 0.15699484400101937,
+              "revoke_latency_s": 0.1748467809993599
+            },
+            {
+              "seed": 45,
+              "leaked_layers": [],
+              "drift_window_s": 0.17546777700044913,
+              "revoke_latency_s": 0.23206371500054956
+            },
+            {
+              "seed": 46,
+              "leaked_layers": [
+                "vector"
+              ],
+              "drift_window_s": null,
+              "revoke_latency_s": 0.15479985199999646
+            },
+            {
+              "seed": 47,
+              "leaked_layers": [],
+              "drift_window_s": 0.08591434900154127,
+              "revoke_latency_s": 0.1401940950017888
+            },
+            {
+              "seed": 48,
+              "leaked_layers": [
+                "nosql"
+              ],
+              "drift_window_s": null,
+              "revoke_latency_s": 0.23349437200158718
+            },
+            {
+              "seed": 49,
+              "leaked_layers": [],
+              "drift_window_s": 0.017479647998698056,
+              "revoke_latency_s": 0.03138753699749941
+            },
+            {
+              "seed": 50,
+              "leaked_layers": [],
+              "drift_window_s": 0.2690624189999653,
+              "revoke_latency_s": 0.2938904279981216
+            }
+          ],
+          "fault_schedule": [
+            "paired"
+          ],
+          "fault_p": [
+            0.1
+          ],
+          "scale": [
+            10000
+          ],
+          "audit_mode": [
+            "none"
+          ],
+          "retry_attempts": [
+            1
+          ]
+        },
+        "C retry": {
+          "n": 50,
+          "leaked_without_bound": 0,
+          "rate": 0.0,
+          "wilson_ci95": [
+            0.0,
+            0.07135003417431873
+          ],
+          "n_closed": 50,
+          "drift_window_median_s": 0.11904513199988287,
+          "drift_window_ci95": [
+            0.10496697399958066,
+            0.14743459309838705
+          ],
+          "revoke_latency_median_s": 0.17257287749998795,
+          "revoke_latency_ci95": [
+            0.13949776699882932,
+            0.221112875999097
+          ],
+          "bridge_total_median_s": 0.1395,
+          "layers_leaked": {},
+          "leaked_seeds": [],
+          "trials": [
+            {
+              "seed": 1,
+              "leaked_layers": [],
+              "drift_window_s": 0.06524529200032703,
+              "revoke_latency_s": 0.07231469800171908
+            },
+            {
+              "seed": 2,
+              "leaked_layers": [],
+              "drift_window_s": 0.17367763800029934,
+              "revoke_latency_s": 0.2516094290003821
+            },
+            {
+              "seed": 3,
+              "leaked_layers": [],
+              "drift_window_s": 0.10046323900132847,
+              "revoke_latency_s": 0.11271142300029169
+            },
+            {
+              "seed": 4,
+              "leaked_layers": [],
+              "drift_window_s": 0.20676653600094141,
+              "revoke_latency_s": 0.21608463600023242
+            },
+            {
+              "seed": 5,
+              "leaked_layers": [],
+              "drift_window_s": 0.20896101400103362,
+              "revoke_latency_s": 0.3017768750014511
+            },
+            {
+              "seed": 6,
+              "leaked_layers": [],
+              "drift_window_s": 0.3658756719996745,
+              "revoke_latency_s": 0.3902230299991061
+            },
+            {
+              "seed": 7,
+              "leaked_layers": [],
+              "drift_window_s": 0.07252035700003034,
+              "revoke_latency_s": 0.20577414400031557
+            },
+            {
+              "seed": 8,
+              "leaked_layers": [],
+              "drift_window_s": 0.12881303999893134,
+              "revoke_latency_s": 0.18630380899958254
+            },
+            {
+              "seed": 9,
+              "leaked_layers": [],
+              "drift_window_s": 0.214420661002805,
+              "revoke_latency_s": 0.2654535350011429
+            },
+            {
+              "seed": 10,
+              "leaked_layers": [],
+              "drift_window_s": 0.18905441500101006,
+              "revoke_latency_s": 0.24518015300054685
+            },
+            {
+              "seed": 11,
+              "leaked_layers": [],
+              "drift_window_s": 0.24989748200096074,
+              "revoke_latency_s": 0.3257499520004785
+            },
+            {
+              "seed": 12,
+              "leaked_layers": [],
+              "drift_window_s": 0.025523539999994682,
+              "revoke_latency_s": 0.10655927200059523
+            },
+            {
+              "seed": 13,
+              "leaked_layers": [],
+              "drift_window_s": 0.24832329000128084,
+              "revoke_latency_s": 0.316226587001438
+            },
+            {
+              "seed": 14,
+              "leaked_layers": [],
+              "drift_window_s": 0.05291171299904818,
+              "revoke_latency_s": 0.1345994969997264
+            },
+            {
+              "seed": 15,
+              "leaked_layers": [],
+              "drift_window_s": 0.11791303599966341,
+              "revoke_latency_s": 0.2490733900012856
+            },
+            {
+              "seed": 16,
+              "leaked_layers": [],
+              "drift_window_s": 0.020025309997436125,
+              "revoke_latency_s": 0.1369359540003643
+            },
+            {
+              "seed": 17,
+              "leaked_layers": [],
+              "drift_window_s": 0.25028622600075323,
+              "revoke_latency_s": 0.2549397080001654
+            },
+            {
+              "seed": 18,
+              "leaked_layers": [],
+              "drift_window_s": 0.07737144200291368,
+              "revoke_latency_s": 0.08516615100234048
+            },
+            {
+              "seed": 19,
+              "leaked_layers": [],
+              "drift_window_s": 0.14602229600131977,
+              "revoke_latency_s": 0.22739873200043803
+            },
+            {
+              "seed": 20,
+              "leaked_layers": [],
+              "drift_window_s": 0.10874790999878314,
+              "revoke_latency_s": 0.12721525999950245
+            },
+            {
+              "seed": 21,
+              "leaked_layers": [],
+              "drift_window_s": 0.079941083000449,
+              "revoke_latency_s": 0.18349801099975593
+            },
+            {
+              "seed": 22,
+              "leaked_layers": [],
+              "drift_window_s": 0.05833536900172476,
+              "revoke_latency_s": 0.25758204700105125
+            },
+            {
+              "seed": 23,
+              "leaked_layers": [],
+              "drift_window_s": 0.12625751299856347,
+              "revoke_latency_s": 0.13335298400124884
+            },
+            {
+              "seed": 24,
+              "leaked_layers": [],
+              "drift_window_s": 0.05346995999934734,
+              "revoke_latency_s": 0.06112724500053446
+            },
+            {
+              "seed": 25,
+              "leaked_layers": [],
+              "drift_window_s": 0.10226927700205124,
+              "revoke_latency_s": 0.1419761200013454
+            },
+            {
+              "seed": 26,
+              "leaked_layers": [],
+              "drift_window_s": 0.11941524999929243,
+              "revoke_latency_s": 0.13808688700009952
+            },
+            {
+              "seed": 27,
+              "leaked_layers": [],
+              "drift_window_s": 0.10779872499915655,
+              "revoke_latency_s": 0.11230652700032806
+            },
+            {
+              "seed": 28,
+              "leaked_layers": [],
+              "drift_window_s": 0.14284996799688088,
+              "revoke_latency_s": 0.14959868699952494
+            },
+            {
+              "seed": 29,
+              "leaked_layers": [],
+              "drift_window_s": 0.16070607000074233,
+              "revoke_latency_s": 0.221112875999097
+            },
+            {
+              "seed": 30,
+              "leaked_layers": [],
+              "drift_window_s": 0.09903031799694872,
+              "revoke_latency_s": 0.11399331499706022
+            },
+            {
+              "seed": 31,
+              "leaked_layers": [],
+              "drift_window_s": 0.12711622400092892,
+              "revoke_latency_s": 0.12923543799843173
+            },
+            {
+              "seed": 32,
+              "leaked_layers": [],
+              "drift_window_s": 0.11867501400047331,
+              "revoke_latency_s": 0.1482339829999546
+            },
+            {
+              "seed": 33,
+              "leaked_layers": [],
+              "drift_window_s": 0.25589034899894614,
+              "revoke_latency_s": 0.31928202400013106
+            },
+            {
+              "seed": 34,
+              "leaked_layers": [],
+              "drift_window_s": 0.15803127600156586,
+              "revoke_latency_s": 0.18782516699866392
+            },
+            {
+              "seed": 35,
+              "leaked_layers": [],
+              "drift_window_s": 0.062179223001294304,
+              "revoke_latency_s": 0.07665726900086156
+            },
+            {
+              "seed": 36,
+              "leaked_layers": [],
+              "drift_window_s": 0.1698666400006914,
+              "revoke_latency_s": 0.2629069209979207
+            },
+            {
+              "seed": 37,
+              "leaked_layers": [],
+              "drift_window_s": 0.12593754599947715,
+              "revoke_latency_s": 0.22496402400065563
+            },
+            {
+              "seed": 38,
+              "leaked_layers": [],
+              "drift_window_s": 0.15193990999978269,
+              "revoke_latency_s": 0.16164774400021997
+            },
+            {
+              "seed": 39,
+              "leaked_layers": [],
+              "drift_window_s": 0.02005520600141608,
+              "revoke_latency_s": 0.13359677399785141
+            },
+            {
+              "seed": 40,
+              "leaked_layers": [],
+              "drift_window_s": 0.11449212300067302,
+              "revoke_latency_s": 0.14547283399951993
+            },
+            {
+              "seed": 41,
+              "leaked_layers": [],
+              "drift_window_s": 0.05552809599976172,
+              "revoke_latency_s": 0.08095433099879301
+            },
+            {
+              "seed": 42,
+              "leaked_layers": [],
+              "drift_window_s": 0.4270800140002393,
+              "revoke_latency_s": 0.4445494760002475
+            },
+            {
+              "seed": 43,
+              "leaked_layers": [],
+              "drift_window_s": 0.09648516599918366,
+              "revoke_latency_s": 0.30753536599877407
+            },
+            {
+              "seed": 44,
+              "leaked_layers": [],
+              "drift_window_s": 0.11347557499902905,
+              "revoke_latency_s": 0.13170468399766833
+            },
+            {
+              "seed": 45,
+              "leaked_layers": [],
+              "drift_window_s": 0.023518623998825205,
+              "revoke_latency_s": 0.14090864699755912
+            },
+            {
+              "seed": 46,
+              "leaked_layers": [],
+              "drift_window_s": 0.23444209700028296,
+              "revoke_latency_s": 0.31019438699877355
+            },
+            {
+              "seed": 47,
+              "leaked_layers": [],
+              "drift_window_s": 0.22827084199889214,
+              "revoke_latency_s": 0.3217217150013312
+            },
+            {
+              "seed": 48,
+              "leaked_layers": [],
+              "drift_window_s": 0.1914020670010359,
+              "revoke_latency_s": 0.2063609130018449
+            },
+            {
+              "seed": 49,
+              "leaked_layers": [],
+              "drift_window_s": 0.10947070899783284,
+              "revoke_latency_s": 0.11938483400081168
+            },
+            {
+              "seed": 50,
+              "leaked_layers": [],
+              "drift_window_s": 0.09146094400057336,
+              "revoke_latency_s": 0.1517237260013644
+            }
+          ],
+          "fault_schedule": [
+            "paired"
+          ],
+          "fault_p": [
+            0.1
+          ],
+          "scale": [
+            10000
+          ],
+          "audit_mode": [
+            "none"
+          ],
+          "retry_attempts": [
+            3
+          ]
+        },
+        "C log": {
+          "n": 50,
+          "leaked_without_bound": 0,
+          "rate": 0.0,
+          "wilson_ci95": [
+            0.0,
+            0.07135003417431873
+          ],
+          "n_closed": 50,
+          "drift_window_median_s": 0.14639518200056045,
+          "drift_window_ci95": [
+            0.12598124899886898,
+            0.17194199450023007
+          ],
+          "revoke_latency_median_s": 0.23283037299916032,
+          "revoke_latency_ci95": [
+            0.2043786239992187,
+            0.26320720099829487
+          ],
+          "bridge_total_median_s": 0.202,
+          "layers_leaked": {},
+          "self_report": {
+            "n": 50,
+            "cells": {
+              "true_containment": 50
+            },
+            "false_containment": 0,
+            "false_non_containment": 0,
+            "attributed": 0,
+            "attributable": 0
+          },
+          "leaked_seeds": [],
+          "trials": [
+            {
+              "seed": 1,
+              "leaked_layers": [],
+              "drift_window_s": 0.17517480099922977,
+              "revoke_latency_s": 0.20901988599871402
+            },
+            {
+              "seed": 2,
+              "leaked_layers": [],
+              "drift_window_s": 0.06222865600102523,
+              "revoke_latency_s": 0.08901530399998592
+            },
+            {
+              "seed": 3,
+              "leaked_layers": [],
+              "drift_window_s": 0.2825938160003716,
+              "revoke_latency_s": 0.3351948319996154
+            },
+            {
+              "seed": 4,
+              "leaked_layers": [],
+              "drift_window_s": 0.13650617900020734,
+              "revoke_latency_s": 0.24590652599908935
+            },
+            {
+              "seed": 5,
+              "leaked_layers": [],
+              "drift_window_s": 0.14875541500077816,
+              "revoke_latency_s": 0.28945332700095605
+            },
+            {
+              "seed": 6,
+              "leaked_layers": [],
+              "drift_window_s": 0.1978747810007917,
+              "revoke_latency_s": 0.20973656800015306
+            },
+            {
+              "seed": 7,
+              "leaked_layers": [],
+              "drift_window_s": 0.14403494900034275,
+              "revoke_latency_s": 0.1745689700001094
+            },
+            {
+              "seed": 8,
+              "leaked_layers": [],
+              "drift_window_s": 0.20539870299944596,
+              "revoke_latency_s": 0.3217804100004287
+            },
+            {
+              "seed": 9,
+              "leaked_layers": [],
+              "drift_window_s": 0.17453454600035911,
+              "revoke_latency_s": 0.2461057799991977
+            },
+            {
+              "seed": 10,
+              "leaked_layers": [],
+              "drift_window_s": 0.1852223870009766,
+              "revoke_latency_s": 0.22459496200099238
+            },
+            {
+              "seed": 11,
+              "leaked_layers": [],
+              "drift_window_s": 0.11480133700024453,
+              "revoke_latency_s": 0.15696173800097313
+            },
+            {
+              "seed": 12,
+              "leaked_layers": [],
+              "drift_window_s": 0.1577923840013682,
+              "revoke_latency_s": 0.17282123000040883
+            },
+            {
+              "seed": 13,
+              "leaked_layers": [],
+              "drift_window_s": 0.26269099499768345,
+              "revoke_latency_s": 0.2927868079968903
+            },
+            {
+              "seed": 14,
+              "leaked_layers": [],
+              "drift_window_s": 0.07223668300139252,
+              "revoke_latency_s": 0.10606730699873879
+            },
+            {
+              "seed": 15,
+              "leaked_layers": [],
+              "drift_window_s": 0.15156710199880763,
+              "revoke_latency_s": 0.1660698699997738
+            },
+            {
+              "seed": 16,
+              "leaked_layers": [],
+              "drift_window_s": 0.026700235001044348,
+              "revoke_latency_s": 0.10436989500158234
+            },
+            {
+              "seed": 17,
+              "leaked_layers": [],
+              "drift_window_s": 0.071906395998667,
+              "revoke_latency_s": 0.15300903699971968
+            },
+            {
+              "seed": 18,
+              "leaked_layers": [],
+              "drift_window_s": 0.18367069400119362,
+              "revoke_latency_s": 0.29144361300132005
+            },
+            {
+              "seed": 19,
+              "leaked_layers": [],
+              "drift_window_s": 0.11172252200049115,
+              "revoke_latency_s": 0.20260386500012828
+            },
+            {
+              "seed": 20,
+              "leaked_layers": [],
+              "drift_window_s": 0.1754032280005049,
+              "revoke_latency_s": 0.29383139200217556
+            },
+            {
+              "seed": 21,
+              "leaked_layers": [],
+              "drift_window_s": 0.18917216599948006,
+              "revoke_latency_s": 0.29278452300059143
+            },
+            {
+              "seed": 22,
+              "leaked_layers": [],
+              "drift_window_s": 0.13402811099877,
+              "revoke_latency_s": 0.24647211099727429
+            },
+            {
+              "seed": 23,
+              "leaked_layers": [],
+              "drift_window_s": 0.21010232100161375,
+              "revoke_latency_s": 0.3105627500008268
+            },
+            {
+              "seed": 24,
+              "leaked_layers": [],
+              "drift_window_s": 0.01891645399882691,
+              "revoke_latency_s": 0.047035956999025075
+            },
+            {
+              "seed": 25,
+              "leaked_layers": [],
+              "drift_window_s": 0.15777585899922997,
+              "revoke_latency_s": 0.26251126199713326
+            },
+            {
+              "seed": 26,
+              "leaked_layers": [],
+              "drift_window_s": 0.23390311900220695,
+              "revoke_latency_s": 0.33747699599916814
+            },
+            {
+              "seed": 27,
+              "leaked_layers": [],
+              "drift_window_s": 0.08202796600016882,
+              "revoke_latency_s": 0.18575959900044836
+            },
+            {
+              "seed": 28,
+              "leaked_layers": [],
+              "drift_window_s": 0.08167380499799037,
+              "revoke_latency_s": 0.15899762800108874
+            },
+            {
+              "seed": 29,
+              "leaked_layers": [],
+              "drift_window_s": 0.20146112800284754,
+              "revoke_latency_s": 0.42105055399952107
+            },
+            {
+              "seed": 30,
+              "leaked_layers": [],
+              "drift_window_s": 0.12598124899886898,
+              "revoke_latency_s": 0.15983022499858635
+            },
+            {
+              "seed": 31,
+              "leaked_layers": [],
+              "drift_window_s": 0.13621664400125155,
+              "revoke_latency_s": 0.240751100001944
+            },
+            {
+              "seed": 32,
+              "leaked_layers": [],
+              "drift_window_s": 0.2768757820012979,
+              "revoke_latency_s": 0.40501956500156666
+            },
+            {
+              "seed": 33,
+              "leaked_layers": [],
+              "drift_window_s": 0.12283326199758449,
+              "revoke_latency_s": 0.2061533829983091
+            },
+            {
+              "seed": 34,
+              "leaked_layers": [],
+              "drift_window_s": 0.1193570150026062,
+              "revoke_latency_s": 0.3143152080010623
+            },
+            {
+              "seed": 35,
+              "leaked_layers": [],
+              "drift_window_s": 0.16589144799945643,
+              "revoke_latency_s": 0.22757058500064886
+            },
+            {
+              "seed": 36,
+              "leaked_layers": [],
+              "drift_window_s": 0.017223789996933192,
+              "revoke_latency_s": 0.13495970999792917
+            },
+            {
+              "seed": 37,
+              "leaked_layers": [],
+              "drift_window_s": 0.021491358998900978,
+              "revoke_latency_s": 0.2218326279980829
+            },
+            {
+              "seed": 38,
+              "leaked_layers": [],
+              "drift_window_s": 0.2520395499996084,
+              "revoke_latency_s": 0.5181210509981611
+            },
+            {
+              "seed": 39,
+              "leaked_layers": [],
+              "drift_window_s": 0.257735783001408,
+              "revoke_latency_s": 0.42247323999981745
+            },
+            {
+              "seed": 40,
+              "leaked_layers": [],
+              "drift_window_s": 0.016413844998169225,
+              "revoke_latency_s": 0.1486191490002966
+            },
+            {
+              "seed": 41,
+              "leaked_layers": [],
+              "drift_window_s": 0.13912871299908147,
+              "revoke_latency_s": 0.25847347200033255
+            },
+            {
+              "seed": 42,
+              "leaked_layers": [],
+              "drift_window_s": 0.16934944300010102,
+              "revoke_latency_s": 0.26390313999945647
+            },
+            {
+              "seed": 43,
+              "leaked_layers": [],
+              "drift_window_s": 0.014504287999443477,
+              "revoke_latency_s": 0.1337104009980976
+            },
+            {
+              "seed": 44,
+              "leaked_layers": [],
+              "drift_window_s": 0.12570568199953414,
+              "revoke_latency_s": 0.2085081929981243
+            },
+            {
+              "seed": 45,
+              "leaked_layers": [],
+              "drift_window_s": 0.16793302799851517,
+              "revoke_latency_s": 0.29937065899866866
+            },
+            {
+              "seed": 46,
+              "leaked_layers": [],
+              "drift_window_s": 0.07718678099990939,
+              "revoke_latency_s": 0.15592466700036312
+            },
+            {
+              "seed": 47,
+              "leaked_layers": [],
+              "drift_window_s": 0.10034739500042633,
+              "revoke_latency_s": 0.17751332400075626
+            },
+            {
+              "seed": 48,
+              "leaked_layers": [],
+              "drift_window_s": 0.1955903460002446,
+              "revoke_latency_s": 0.324579652002285
+            },
+            {
+              "seed": 49,
+              "leaked_layers": [],
+              "drift_window_s": 0.25306309100051294,
+              "revoke_latency_s": 0.4589866050009732
+            },
+            {
+              "seed": 50,
+              "leaked_layers": [],
+              "drift_window_s": 0.1361146219969669,
+              "revoke_latency_s": 0.23809016099767177
+            }
+          ],
+          "fault_schedule": [
+            "paired"
+          ],
+          "fault_p": [
+            0.1
+          ],
+          "scale": [
+            10000
+          ],
+          "audit_mode": [
+            "log"
+          ],
+          "retry_attempts": [
+            3
+          ]
+        },
+        "C ledger": {
+          "n": 50,
+          "leaked_without_bound": 0,
+          "rate": 0.0,
+          "wilson_ci95": [
+            0.0,
+            0.07135003417431873
+          ],
+          "n_closed": 50,
+          "drift_window_median_s": 2.8097861754995392,
+          "drift_window_ci95": [
+            2.7675327779998042,
+            2.8640871815005084
+          ],
+          "revoke_latency_median_s": 5.353901263999433,
+          "revoke_latency_ci95": [
+            5.323076273998595,
+            5.435851764499603
+          ],
+          "bridge_total_median_s": 5.341,
+          "layers_leaked": {},
+          "self_report": {
+            "n": 50,
+            "cells": {
+              "true_containment": 50
+            },
+            "false_containment": 0,
+            "false_non_containment": 0,
+            "attributed": 0,
+            "attributable": 0
+          },
+          "leaked_seeds": [],
+          "trials": [
+            {
+              "seed": 1,
+              "leaked_layers": [],
+              "drift_window_s": 2.798269025000991,
+              "revoke_latency_s": 5.682495826000377
+            },
+            {
+              "seed": 2,
+              "leaked_layers": [],
+              "drift_window_s": 3.05667401699975,
+              "revoke_latency_s": 5.610884220001026
+            },
+            {
+              "seed": 3,
+              "leaked_layers": [],
+              "drift_window_s": 2.956758662001448,
+              "revoke_latency_s": 5.450648391000868
+            },
+            {
+              "seed": 4,
+              "leaked_layers": [],
+              "drift_window_s": 3.1550360140008706,
+              "revoke_latency_s": 5.803096532999916
+            },
+            {
+              "seed": 5,
+              "leaked_layers": [],
+              "drift_window_s": 3.1770541589994536,
+              "revoke_latency_s": 5.574126609999439
+            },
+            {
+              "seed": 6,
+              "leaked_layers": [],
+              "drift_window_s": 2.6691520089989353,
+              "revoke_latency_s": 5.254895731999568
+            },
+            {
+              "seed": 7,
+              "leaked_layers": [],
+              "drift_window_s": 3.0707638959993346,
+              "revoke_latency_s": 5.778230033998625
+            },
+            {
+              "seed": 8,
+              "leaked_layers": [],
+              "drift_window_s": 2.6348335229995428,
+              "revoke_latency_s": 5.523538870998891
+            },
+            {
+              "seed": 9,
+              "leaked_layers": [],
+              "drift_window_s": 2.721559083001921,
+              "revoke_latency_s": 5.233170944000449
+            },
+            {
+              "seed": 10,
+              "leaked_layers": [],
+              "drift_window_s": 2.984084024999902,
+              "revoke_latency_s": 5.462921761998587
+            },
+            {
+              "seed": 11,
+              "leaked_layers": [],
+              "drift_window_s": 2.607413408000866,
+              "revoke_latency_s": 5.387041658999806
+            },
+            {
+              "seed": 12,
+              "leaked_layers": [],
+              "drift_window_s": 2.732460125000216,
+              "revoke_latency_s": 5.348982714000158
+            },
+            {
+              "seed": 13,
+              "leaked_layers": [],
+              "drift_window_s": 3.00931327500075,
+              "revoke_latency_s": 5.456870725000044
+            },
+            {
+              "seed": 14,
+              "leaked_layers": [],
+              "drift_window_s": 2.7881847559983726,
+              "revoke_latency_s": 5.421055137998337
+            },
+            {
+              "seed": 15,
+              "leaked_layers": [],
+              "drift_window_s": 2.615836685999966,
+              "revoke_latency_s": 5.1226836440000625
+            },
+            {
+              "seed": 16,
+              "leaked_layers": [],
+              "drift_window_s": 2.8094834850016923,
+              "revoke_latency_s": 5.3397590090025915
+            },
+            {
+              "seed": 17,
+              "leaked_layers": [],
+              "drift_window_s": 2.781791058998351,
+              "revoke_latency_s": 5.239709769997717
+            },
+            {
+              "seed": 18,
+              "leaked_layers": [],
+              "drift_window_s": 3.004382760998851,
+              "revoke_latency_s": 5.461740976999863
+            },
+            {
+              "seed": 19,
+              "leaked_layers": [],
+              "drift_window_s": 2.697269515003427,
+              "revoke_latency_s": 5.1534224370007
+            },
+            {
+              "seed": 20,
+              "leaked_layers": [],
+              "drift_window_s": 2.675726202000078,
+              "revoke_latency_s": 5.29373048799971
+            },
+            {
+              "seed": 21,
+              "leaked_layers": [],
+              "drift_window_s": 2.682585434999055,
+              "revoke_latency_s": 5.152758304000599
+            },
+            {
+              "seed": 22,
+              "leaked_layers": [],
+              "drift_window_s": 2.884430746998987,
+              "revoke_latency_s": 5.358641380000336
+            },
+            {
+              "seed": 23,
+              "leaked_layers": [],
+              "drift_window_s": 2.818057336997299,
+              "revoke_latency_s": 5.587354105999111
+            },
+            {
+              "seed": 24,
+              "leaked_layers": [],
+              "drift_window_s": 3.0039938269983395,
+              "revoke_latency_s": 5.891956234998361
+            },
+            {
+              "seed": 25,
+              "leaked_layers": [],
+              "drift_window_s": 2.908525228001963,
+              "revoke_latency_s": 5.559831572001713
+            },
+            {
+              "seed": 26,
+              "leaked_layers": [],
+              "drift_window_s": 2.7568550249998225,
+              "revoke_latency_s": 5.3469891189997725
+            },
+            {
+              "seed": 27,
+              "leaked_layers": [],
+              "drift_window_s": 2.810088865997386,
+              "revoke_latency_s": 5.284355670999503
+            },
+            {
+              "seed": 28,
+              "leaked_layers": [],
+              "drift_window_s": 2.6129355100019893,
+              "revoke_latency_s": 5.215746791000129
+            },
+            {
+              "seed": 29,
+              "leaked_layers": [],
+              "drift_window_s": 2.8670238260019687,
+              "revoke_latency_s": 5.425274213001103
+            },
+            {
+              "seed": 30,
+              "leaked_layers": [],
+              "drift_window_s": 2.717765266999777,
+              "revoke_latency_s": 5.26675459100079
+            },
+            {
+              "seed": 31,
+              "leaked_layers": [],
+              "drift_window_s": 3.010617708998325,
+              "revoke_latency_s": 5.9065403409986175
+            },
+            {
+              "seed": 32,
+              "leaked_layers": [],
+              "drift_window_s": 2.8386040320001484,
+              "revoke_latency_s": 5.3431013750014245
+            },
+            {
+              "seed": 33,
+              "leaked_layers": [],
+              "drift_window_s": 2.8775233950000256,
+              "revoke_latency_s": 5.188014346997079
+            },
+            {
+              "seed": 34,
+              "leaked_layers": [],
+              "drift_window_s": 2.467719758002204,
+              "revoke_latency_s": 5.156157821002125
+            },
+            {
+              "seed": 35,
+              "leaked_layers": [],
+              "drift_window_s": 2.5281893700012006,
+              "revoke_latency_s": 5.262799317999452
+            },
+            {
+              "seed": 36,
+              "leaked_layers": [],
+              "drift_window_s": 2.657628746001137,
+              "revoke_latency_s": 5.323076273998595
+            },
+            {
+              "seed": 37,
+              "leaked_layers": [],
+              "drift_window_s": 2.858703510999476,
+              "revoke_latency_s": 5.483480447001057
+            },
+            {
+              "seed": 38,
+              "leaked_layers": [],
+              "drift_window_s": 2.863495113000681,
+              "revoke_latency_s": 5.343042960001185
+            },
+            {
+              "seed": 39,
+              "leaked_layers": [],
+              "drift_window_s": 2.8563656360020104,
+              "revoke_latency_s": 5.4873991109998315
+            },
+            {
+              "seed": 40,
+              "leaked_layers": [],
+              "drift_window_s": 2.8535560659984185,
+              "revoke_latency_s": 5.415930789000413
+            },
+            {
+              "seed": 41,
+              "leaked_layers": [],
+              "drift_window_s": 2.8646792500003357,
+              "revoke_latency_s": 5.385829923998244
+            },
+            {
+              "seed": 42,
+              "leaked_layers": [],
+              "drift_window_s": 2.778210530999786,
+              "revoke_latency_s": 5.3491611479985295
+            },
+            {
+              "seed": 43,
+              "leaked_layers": [],
+              "drift_window_s": 2.781353129998024,
+              "revoke_latency_s": 5.289158277999377
+            },
+            {
+              "seed": 44,
+              "leaked_layers": [],
+              "drift_window_s": 2.559723695001594,
+              "revoke_latency_s": 5.167492798998865
+            },
+            {
+              "seed": 45,
+              "leaked_layers": [],
+              "drift_window_s": 3.044749648997822,
+              "revoke_latency_s": 5.550226831997861
+            },
+            {
+              "seed": 46,
+              "leaked_layers": [],
+              "drift_window_s": 3.014888436999172,
+              "revoke_latency_s": 5.999835923998035
+            },
+            {
+              "seed": 47,
+              "leaked_layers": [],
+              "drift_window_s": 2.687261209997814,
+              "revoke_latency_s": 5.2794112429983215
+            },
+            {
+              "seed": 48,
+              "leaked_layers": [],
+              "drift_window_s": 2.712174137999682,
+              "revoke_latency_s": 5.16602410500127
+            },
+            {
+              "seed": 49,
+              "leaked_layers": [],
+              "drift_window_s": 2.9554003439989174,
+              "revoke_latency_s": 5.435462125999038
+            },
+            {
+              "seed": 50,
+              "leaked_layers": [],
+              "drift_window_s": 2.802240121000068,
+              "revoke_latency_s": 5.3230045170021185
+            }
+          ],
+          "fault_schedule": [
+            "paired"
+          ],
+          "fault_p": [
+            0.1
+          ],
+          "scale": [
+            10000
+          ],
+          "audit_mode": [
+            "ledger"
+          ],
+          "retry_attempts": [
+            3
+          ]
+        }
+      },
+      "diff_vs_reference": {
+        "A": {
+          "diff": 0.0,
+          "lo": -0.17807668601105753,
+          "hi": 0.17807668601105753,
+          "meaning": "reference rate minus this configuration's rate"
+        },
+        "O": {
+          "diff": 0.32,
+          "lo": 0.18684976666966513,
+          "hi": 0.45810557136276076,
+          "meaning": "reference rate minus this configuration's rate"
+        },
+        "C no retry": {
+          "diff": 0.0,
+          "lo": -0.17807668601105753,
+          "hi": 0.17807668601105753,
+          "meaning": "reference rate minus this configuration's rate"
+        },
+        "C retry": {
+          "diff": 0.32,
+          "lo": 0.18684976666966513,
+          "hi": 0.45810557136276076,
+          "meaning": "reference rate minus this configuration's rate"
+        },
+        "C log": {
+          "diff": 0.32,
+          "lo": 0.18684976666966513,
+          "hi": 0.45810557136276076,
+          "meaning": "reference rate minus this configuration's rate"
+        },
+        "C ledger": {
+          "diff": 0.32,
+          "lo": 0.18684976666966513,
+          "hi": 0.45810557136276076,
+          "meaning": "reference rate minus this configuration's rate"
+        }
+      },
+      "excluded": {
+        "A": {},
+        "O": {},
+        "C no retry": {},
+        "C retry": {},
+        "C log": {},
+        "C ledger": {}
+      },
+      "excluded_seeds": {
+        "A": [],
+        "O": [],
+        "C no retry": [],
+        "C retry": [],
+        "C log": [],
+        "C ledger": []
+      },
+      "paired": {
+        "O": {
+          "n_pairs": 50,
+          "both_leaked": 0,
+          "neither_leaked": 34,
+          "ref_only_leaked": 16,
+          "cmp_only_leaked": 0,
+          "paired_diff": 0.32,
+          "paired_diff_wald_ci95": [
+            0.19069940758063017,
+            0.4493005924193698
+          ],
+          "mcnemar_exact_p": 3.0517578125e-05,
+          "seeds_ref_only": [
+            1,
+            3,
+            6,
+            9,
+            10,
+            13,
+            20,
+            21,
+            26,
+            28,
+            30,
+            31,
+            33,
+            34,
+            46,
+            48
+          ],
+          "seeds_cmp_only": []
+        },
+        "C no retry": {
+          "n_pairs": 50,
+          "both_leaked": 16,
+          "neither_leaked": 34,
+          "ref_only_leaked": 0,
+          "cmp_only_leaked": 0,
+          "paired_diff": 0.0,
+          "paired_diff_wald_ci95": [
+            0.0,
+            0.0
+          ],
+          "mcnemar_exact_p": 1.0,
+          "seeds_ref_only": [],
+          "seeds_cmp_only": []
+        },
+        "C retry": {
+          "n_pairs": 50,
+          "both_leaked": 0,
+          "neither_leaked": 34,
+          "ref_only_leaked": 16,
+          "cmp_only_leaked": 0,
+          "paired_diff": 0.32,
+          "paired_diff_wald_ci95": [
+            0.19069940758063017,
+            0.4493005924193698
+          ],
+          "mcnemar_exact_p": 3.0517578125e-05,
+          "seeds_ref_only": [
+            1,
+            3,
+            6,
+            9,
+            10,
+            13,
+            20,
+            21,
+            26,
+            28,
+            30,
+            31,
+            33,
+            34,
+            46,
+            48
+          ],
+          "seeds_cmp_only": []
+        },
+        "C log": {
+          "n_pairs": 50,
+          "both_leaked": 0,
+          "neither_leaked": 34,
+          "ref_only_leaked": 16,
+          "cmp_only_leaked": 0,
+          "paired_diff": 0.32,
+          "paired_diff_wald_ci95": [
+            0.19069940758063017,
+            0.4493005924193698
+          ],
+          "mcnemar_exact_p": 3.0517578125e-05,
+          "seeds_ref_only": [
+            1,
+            3,
+            6,
+            9,
+            10,
+            13,
+            20,
+            21,
+            26,
+            28,
+            30,
+            31,
+            33,
+            34,
+            46,
+            48
+          ],
+          "seeds_cmp_only": []
+        },
+        "C ledger": {
+          "n_pairs": 50,
+          "both_leaked": 0,
+          "neither_leaked": 34,
+          "ref_only_leaked": 16,
+          "cmp_only_leaked": 0,
+          "paired_diff": 0.32,
+          "paired_diff_wald_ci95": [
+            0.19069940758063017,
+            0.4493005924193698
+          ],
+          "mcnemar_exact_p": 3.0517578125e-05,
+          "seeds_ref_only": [
+            1,
+            3,
+            6,
+            9,
+            10,
+            13,
+            20,
+            21,
+            26,
+            28,
+            30,
+            31,
+            33,
+            34,
+            46,
+            48
+          ],
+          "seeds_cmp_only": []
+        }
+      },
+      "paired_n": 50,
+      "paired_consecutive": {
+        "A \u2192 O": {
+          "n_pairs": 50,
+          "both_leaked": 0,
+          "neither_leaked": 34,
+          "ref_only_leaked": 16,
+          "cmp_only_leaked": 0,
+          "paired_diff": 0.32,
+          "paired_diff_wald_ci95": [
+            0.19069940758063017,
+            0.4493005924193698
+          ],
+          "mcnemar_exact_p": 3.0517578125e-05,
+          "seeds_ref_only": [
+            1,
+            3,
+            6,
+            9,
+            10,
+            13,
+            20,
+            21,
+            26,
+            28,
+            30,
+            31,
+            33,
+            34,
+            46,
+            48
+          ],
+          "seeds_cmp_only": []
+        },
+        "O \u2192 C no retry": {
+          "n_pairs": 50,
+          "both_leaked": 0,
+          "neither_leaked": 34,
+          "ref_only_leaked": 0,
+          "cmp_only_leaked": 16,
+          "paired_diff": -0.32,
+          "paired_diff_wald_ci95": [
+            -0.4493005924193698,
+            -0.19069940758063017
+          ],
+          "mcnemar_exact_p": 3.0517578125e-05,
+          "seeds_ref_only": [],
+          "seeds_cmp_only": [
+            1,
+            3,
+            6,
+            9,
+            10,
+            13,
+            20,
+            21,
+            26,
+            28,
+            30,
+            31,
+            33,
+            34,
+            46,
+            48
+          ]
+        },
+        "C no retry \u2192 C retry": {
+          "n_pairs": 50,
+          "both_leaked": 0,
+          "neither_leaked": 34,
+          "ref_only_leaked": 16,
+          "cmp_only_leaked": 0,
+          "paired_diff": 0.32,
+          "paired_diff_wald_ci95": [
+            0.19069940758063017,
+            0.4493005924193698
+          ],
+          "mcnemar_exact_p": 3.0517578125e-05,
+          "seeds_ref_only": [
+            1,
+            3,
+            6,
+            9,
+            10,
+            13,
+            20,
+            21,
+            26,
+            28,
+            30,
+            31,
+            33,
+            34,
+            46,
+            48
+          ],
+          "seeds_cmp_only": []
+        },
+        "C retry \u2192 C log": {
+          "n_pairs": 50,
+          "both_leaked": 0,
+          "neither_leaked": 50,
+          "ref_only_leaked": 0,
+          "cmp_only_leaked": 0,
+          "paired_diff": 0.0,
+          "paired_diff_wald_ci95": [
+            0.0,
+            0.0
+          ],
+          "mcnemar_exact_p": 1.0,
+          "seeds_ref_only": [],
+          "seeds_cmp_only": []
+        },
+        "C log \u2192 C ledger": {
+          "n_pairs": 50,
+          "both_leaked": 0,
+          "neither_leaked": 50,
+          "ref_only_leaked": 0,
+          "cmp_only_leaked": 0,
+          "paired_diff": 0.0,
+          "paired_diff_wald_ci95": [
+            0.0,
+            0.0
+          ],
+          "mcnemar_exact_p": 1.0,
+          "seeds_ref_only": [],
+          "seeds_cmp_only": []
+        }
+      }
+    }
+  },
+  "checks": []
+}

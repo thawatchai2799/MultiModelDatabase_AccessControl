@@ -36,6 +36,10 @@ Three architectures are compared:
   connection).
 - **C** — a bridge that records every revoke to an audit backend before
   touching any store, then propagates concurrently with bounded retry.
+- **O** (v1.2.0) — a transactional outbox: the relational write and one
+  outbox row per remote layer commit in one transaction, and a relay drains
+  the outbox with unbounded retry. The durable-recovery baseline the first
+  version of the study named but did not measure.
 
 Scenario C is run against three audit backends — a Hyperledger Fabric
 ledger, an append-only PostgreSQL table, and none at all — so that the
@@ -53,7 +57,9 @@ fabric/              chaincode and network-up.sh (brings up the test network)
 postgres/            init.sql, replica configuration, audit_log.sql
 scenarios/           the three scenarios and the store clients
 experiments/         harness, poller, analysis pipeline, tests, drivers
-docs/                figure generators and the generated figures
+docs/                figure generators, the generated figures, and the v58
+                     manuscript build (build_v58.py, v58_edits.py) with its
+                     independent checker (verify_v58.py)
 results/             raw result files (JSONL), one record per trial per layer
 ```
 
@@ -84,13 +90,30 @@ Two environment constraints are not preferences:
 `fabric/network-up.sh` verifies both, and ten further preconditions, before
 anything is measured.
 
-Two multi-run drivers are provided:
+Three multi-run drivers are provided:
 
 ```bash
-bash experiments/run_faulty_grid.sh    # 20 seeds x 3 audit backends, faulty regime
+bash experiments/run_faulty_grid.sh    # 20 seeds x 3 audit backends, faulty regime (stream schedule)
 RETRY=1 MODES="none" bash experiments/run_faulty_grid.sh   # concurrency-only ablation column
+bash experiments/run_paired_grid.sh    # v1.2.0: A, O and C, p in {0.05, 0.10, 0.30}, 50 seeds, PAIRED schedule (~4.5 h; run under tmux)
 bash experiments/tamper_test.sh        # administrator tampering, both audit backends
 ```
+
+### The paired fault schedule (v1.2.0)
+
+Under the original ("stream") schedule, Scenario A and the bridge draw
+their injected failures from separate generators: the same failure *rate*,
+not the same failures. `--fault-schedule paired` makes the decision for
+(seed, layer, attempt) a pure function of those three values, computed
+identically in the Python harness and the Node bridge
+(`bridge/gen_paired_fault_test.py` verifies the two agree value for value).
+Attempt k of a layer then fails in every scenario or in none — A's single
+attempt is attempt 0, the relay's and the bridge's first attempt is the same
+attempt 0 — so A, O and C differ in revoke discipline alone, and
+`experiments/ablation_table.py` reports the per-seed outcomes as matched
+pairs (discordant counts, exact McNemar) alongside the Wilson and Newcombe
+intervals. The stream schedule remains the default; every file listed
+below that predates v1.2.0 reproduces unchanged.
 
 ## Which result file produced which table or figure
 
@@ -108,6 +131,23 @@ bash experiments/tamper_test.sh        # administrator tampering, both audit bac
 | `c_bt5s_sync.jsonl`, `c_bt5s_async.jsonl`, `c_bt500ms_async.jsonl` | synchronous versus asynchronous anchoring |
 | `ablation_ledger_on.jsonl`, `ablation_ledger_off.jsonl`, `ablation_logtable.jsonl` | the first five-seed ablation |
 | `tamper_test.json` | the administrator-tampering experiment |
+| `paired_p<p>_<config>.jsonl` (v1.2.0) | A, O and C under the paired schedule at p ∈ {0.05, 0.10, 0.30}, 50 seeds, one file per bridge configuration (`none-noretry`, `none`, `log`, `ledger`); A and O are in the `none-noretry` file. Behind Tables VII, VIII and XI and Figure 6 of the revised paper |
+
+The ablation table (Table VII) is computed from the result files by
+`experiments/ablation_table.py`; run without arguments for its usage. On the
+`faulty20_*` files it reproduces the first submission's numbers exactly
+(`experiments/test_ablation_table.py` checks this).
+
+The revised manuscript is produced from the v57 Word file and the
+`analysis/paired_p*.json` reports by `docs/build_v58.py` (every number in
+it is a placeholder resolved from the reports; see `docs/v58_edits.py`),
+and `docs/verify_v58.py` then recomputes Tables V–VIII and XI and the
+prose counts from the raw `results/paired_p*.jsonl` files, sharing no
+code with `ablation_table.py`:
+
+```bash
+python docs/verify_v58.py --docx MultiModelDatabase_AccessControl_IEEE_v58.docx --results results
+```
 
 Every figure is regenerated from these files by:
 
@@ -147,17 +187,21 @@ Three conventions matter when reading these files:
 
 ## Tests
 
-Ten suites exercise the harness, the chaincode and the bridge. None
-requires Docker, a network or a running ledger:
+Thirteen suites exercise the harness, the chaincode and the bridge. All but
+one need neither Docker, a network nor a running ledger:
 
 ```bash
 for t in test_poll_concurrent test_faults test_analyze test_seed_guard \
-         test_run_experiment_integration test_scenario_b5_priming; do
+         test_run_experiment_integration test_scenario_b5_priming test_ablation_table; do
   python experiments/$t.py; done
 python bridge/gen_propagate_test.py
 python bridge/gen_audit_log_test.py
 python bridge/gen_retry_budget_test.py
+python bridge/gen_paired_fault_test.py     # Python and Node agree on every paired decision
 node fabric/chaincode/test-chaincode.mjs
+# Scenario O's relay is tested against a real PostgreSQL (any reachable
+# cluster; it creates and drops its own database, mldb_test_o):
+POSTGRES_PORT=5432 POSTGRES_USER=mldb POSTGRES_PASSWORD=... python experiments/test_scenario_o.py
 ```
 
 ## Citing

@@ -100,7 +100,7 @@ def c_revoke(rid, pid, url):
 sc.revoke = c_revoke
 sc.bridge_reported_status = lambda rid, pid, url: {"contained": not pid.endswith("-1"), "missingLayers": []}
 FAULT_CFG = []
-sc.set_fault_config = lambda url, p, seed: FAULT_CFG.append((p, seed)) or {"p": p, "seed": seed}
+sc.set_fault_config = lambda url, p, seed, schedule="stream": FAULT_CFG.append((p, seed)) or {"p": p, "seed": seed, "schedule": schedule}
 sc.get_fault_config = lambda url: {"p": FAULT_CFG[-1][0] if FAULT_CFG else 0, "injected": 0, "attempts": 3}
 ANCHOR_CFG = []
 sc.set_anchor_config = lambda url, use_async: ANCHOR_CFG.append(use_async) or {"async": use_async}

@@ -75,6 +75,31 @@ def main():
     check("pg primary: resources_layer_relational (A/C)", pg_check(db.connect_pg_primary, "resources_layer_relational"))
     check("pg primary: resources_hot matview (B1)", pg_check(db.connect_pg_primary, "resources_hot"))
 
+    def outbox():
+        # Scenario O (v1.2.0). On a fresh volume docker-compose applies
+        # outbox.sql; on an existing cluster it must be applied once by
+        # hand, and a relay that cannot UPDATE would fail on the first row.
+        conn = db.connect_pg_primary()
+        try:
+            with conn.cursor() as cur:
+                cur.execute("SELECT to_regclass('public.revoke_outbox') IS NOT NULL")
+                if not cur.fetchone()[0]:
+                    raise RuntimeError("table revoke_outbox missing -- apply postgres/primary/outbox.sql "
+                                       "(docker exec -i mldb-postgres-primary psql -U mldb -d mldb < postgres/primary/outbox.sql)")
+                cur.execute("SELECT has_table_privilege('revoke_outbox', 'INSERT'), "
+                            "has_table_privilege('revoke_outbox', 'UPDATE'), has_table_privilege('revoke_outbox', 'DELETE')")
+                ins, upd, dele = cur.fetchone()
+                cur.execute("SELECT count(*) FROM revoke_outbox WHERE status = 'pending'")
+                pending = cur.fetchone()[0]
+            conn.rollback()
+            if not (ins and upd and dele):
+                raise RuntimeError(f"app_user privileges on revoke_outbox: insert={ins} update={upd} delete={dele}")
+            return f"present, app_user can insert/update/delete; {pending} pending row(s)" + \
+                   (" -- LEFTOVER from an interrupted run, a relay would apply them" if pending else "")
+        finally:
+            conn.close()
+    check("pg primary: revoke_outbox (O)", outbox)
+
     def replica():
         conn = db.connect_pg_replica()
         try:
@@ -169,6 +194,17 @@ def main():
                         f"This is the ablation backend -- restart without the override for Scenario C. {r.json()}")
             return f"Fabric reachable from bridge (audit={mode or 'ledger'}): {r.json()}"
         check("bridge -> audit backend (/status)", status)
+        def paired():
+            # The paired fault schedule (v1.2.0) needs a bridge built from
+            # this source; an older container ignores the field silently.
+            r = requests.post(f"{args.bridge_url}/fault-config", json={"p": 0, "seed": 0, "schedule": "paired"}, timeout=5)
+            r.raise_for_status()
+            got = r.json().get("schedule")
+            requests.post(f"{args.bridge_url}/fault-config", json={"p": 0, "seed": 0}, timeout=5)
+            if got != "paired":
+                raise RuntimeError("bridge ignores the fault schedule -- rebuild it: docker compose up -d --build bridge")
+            return "bridge accepts schedule=paired (reset to stream, p=0)"
+        check("bridge paired fault schedule", paired)
 
     failed = [n for n, ok, _ in results if not ok]
     print("=== summary ===")

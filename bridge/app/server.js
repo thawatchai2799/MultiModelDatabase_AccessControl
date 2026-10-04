@@ -69,7 +69,7 @@ async function withRetry(fn) {
   let lastErr;
   for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
     try {
-      await fn();
+      await fn(attempt);          // the attempt index is what the paired fault schedule is keyed on
       return { ok: true, attempts: attempt + 1 };
     } catch (err) {
       lastErr = err;
@@ -113,16 +113,37 @@ function mulberry32(seed) {
     return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
   };
 }
-const fault = { p: 0, seed: 0, rng: mulberry32(0), injected: 0, attempts: 0 };
-function setFaultConfig(p, seed) {
-  fault.p = p; fault.seed = seed >>> 0; fault.rng = mulberry32(fault.seed);
+// Two schedules (v1.2.0; scenarios/common/faults.py has the matching Python):
+//   'stream' -- the original: one seeded stream, consumed in call order. The
+//       Python harness's Scenario A uses its own stream (random.Random), so
+//       A and the bridge see the same failure RATE, not the same failures.
+//       Every result in the first submission used this, so it stays the
+//       default and is untouched.
+//   'paired' -- the decision for (seed, layer, attempt) is a pure function of
+//       those three values, identical in both languages, so attempt k of a
+//       layer fails in every configuration or in none. Scenario A's single
+//       attempt and the bridge's first attempt are both attempt 0: the same
+//       failures hit both, and only the revoke discipline differs.
+const FAULT_SCHEDULES = ['stream', 'paired'];
+const LAYER_INDEX = { relational: 0, nosql: 1, vector: 2 };
+function pairedFaultU(seed, layer, attempt) {
+  // Mix constants are duplicated in faults.py; change both or neither.
+  const s = ((seed >>> 0) ^ (((LAYER_INDEX[layer] + 1) * 0x9E3779B1) >>> 0)
+                          ^ (((attempt + 1) * 0x85EBCA77) >>> 0)) >>> 0;
+  return mulberry32(s)();
+}
+const fault = { p: 0, seed: 0, schedule: 'stream', rng: mulberry32(0), injected: 0, attempts: 0 };
+function setFaultConfig(p, seed, schedule = 'stream') {
+  fault.p = p; fault.seed = seed >>> 0; fault.schedule = schedule; fault.rng = mulberry32(fault.seed);
   fault.injected = 0; fault.attempts = 0;
 }
-function maybeInjectFault(layer) {
+function maybeInjectFault(layer, attempt) {
   fault.attempts += 1;
-  if (fault.p > 0 && fault.rng() < fault.p) {
+  if (fault.p <= 0) return;
+  const u = fault.schedule === 'paired' ? pairedFaultU(fault.seed, layer, attempt) : fault.rng();
+  if (u < fault.p) {
     fault.injected += 1;
-    throw new Error(`injected transient failure (${layer})`);
+    throw new Error(`injected transient failure (${layer}, attempt ${attempt})`);
   }
 }
 
@@ -186,8 +207,8 @@ async function propagate(action, resourceId, principalId, eventId) {
     // invisible and the whole 9.4 s would be misread as the bridge's cost
     // to contain the data.
     const tStore = Date.now();
-    const outcome = await withRetry(async () => {
-      maybeInjectFault(store.layer);          // per attempt, before the real write
+    const outcome = await withRetry(async (attempt) => {
+      maybeInjectFault(store.layer, attempt); // per attempt, before the real write
       await store[action](resourceId, principalId);
     });
     return { layer: store.layer, ...outcome, storeMs: Date.now() - tStore };
@@ -331,11 +352,15 @@ app.get('/health', (_req, res) => res.json({ ok: true }));
 app.post('/fault-config', (req, res) => {
   const p = Number(req.body.p);
   const seed = Number(req.body.seed ?? 0);
+  const schedule = req.body.schedule ?? 'stream';
   if (!(p >= 0 && p <= 1) || !Number.isFinite(seed)) {
     return res.status(400).json({ error: 'p must be in [0,1], seed must be a number' });
   }
-  setFaultConfig(p, seed);
-  res.json({ p: fault.p, seed: fault.seed });
+  if (!FAULT_SCHEDULES.includes(schedule)) {
+    return res.status(400).json({ error: `schedule must be one of ${FAULT_SCHEDULES.join('|')}` });
+  }
+  setFaultConfig(p, seed, schedule);
+  res.json({ p: fault.p, seed: fault.seed, schedule: fault.schedule });
 });
 app.post('/anchor-config', (req, res) => {
   const wantAsync = req.body.async;
@@ -359,7 +384,7 @@ app.get('/anchor-config', (_req, res) =>
 app.get('/anchor-status/:eventId', (req, res) => res.json(anchorStateFor(req.params.eventId)));
 
 app.get('/fault-config', (_req, res) =>
-  res.json({ p: fault.p, seed: fault.seed, injected: fault.injected, attempts: fault.attempts }));
+  res.json({ p: fault.p, seed: fault.seed, schedule: fault.schedule, injected: fault.injected, attempts: fault.attempts }));
 
 // Since the qdrant service has no Docker-level healthcheck gate (see
 // docker-compose.yml for why), the bridge waits for Qdrant itself to answer

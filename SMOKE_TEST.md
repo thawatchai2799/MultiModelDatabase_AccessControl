@@ -111,6 +111,28 @@ about 27% of trials hit at least one layer, so most will still look
 healthy -- that is expected at 3 seeds. Once the bridge is up (Stage 6),
 run `--scenarios a,c --regime faulty` so both get the same p.
 
+## Stage 4c — Scenario O, the transactional outbox (v1.2.0; no bridge needed)
+
+On an existing cluster the outbox table must be created once (a fresh
+volume gets it from docker-compose automatically):
+
+```bash
+docker exec -i mldb-postgres-primary psql -U mldb -d mldb < postgres/primary/outbox.sql
+python experiments/check_env.py --no-bridge          # "pg primary: revoke_outbox (O)" must PASS
+python experiments/run_experiment.py --scenarios a,o --scales 1000 --seeds 1,2,3 \
+    --regime faulty --fault-p 0.30 --fault-schedule paired --out results/smoke_ao_paired.jsonl
+python experiments/ablation_table.py A=results/smoke_ao_paired.jsonl O=results/smoke_ao_paired.jsonl
+```
+
+Expect: for every seed, the layers A reports as `injected transient
+failure` are exactly the layers O had to retry -- `outbox_worker.layers.<l>.attempts` > 1
+for nosql and vector, `outbox_revoke.inline_attempts` > 1 for relational
+(which has no outbox row: it is the transaction the rows ride on). That is
+the paired schedule working. O should close
+every layer (unbounded retry); each retried layer's window is at least the
+50 ms backoff. The table's matched-pairs block should list the seeds A lost
+under "ref only".
+
 ## Stage 5 — Fabric
 
 Run `node fabric/chaincode/test-chaincode.mjs` first: it checks the
@@ -181,6 +203,22 @@ python experiments/run_experiment.py --scenarios a,c --scales 10000 --seeds 1,2 
 python experiments/run_experiment.py --scenarios b1,b2,b3,b4,b5,b6 --scales 10000 --seeds 1,2 --out results/grid_b_10k.jsonl
 python experiments/analyze.py results/grid_*.jsonl --out analysis/grid_10k
 ```
+
+For the v1.2.0 paired campaign, once Stages 4c and 6 are clean
+(`check_env.py` must also PASS "bridge paired fault schedule", or rebuild
+the bridge with `docker compose up -d --build bridge`):
+
+```bash
+sudo apt install -y tmux && tmux new -s paired     # an ssh drop must not kill a 5-hour run
+cd ~/mldb && source .venv/bin/activate
+SEEDS="1 2 3" P_VALUES="0.30" PREFIX=rehearsal bash experiments/run_paired_grid.sh 2>&1 | tee results/rehearsal.log   # ~15 min
+bash experiments/run_paired_grid.sh 2>&1 | tee results/paired.log   # the full grid: 50 seeds x 3 p x 4 configs, ~4.5 h
+```
+
+Detach from tmux with `Ctrl-b d`; reattach with `tmux attach -t paired`. If
+the run is interrupted anyway, `RESUME=1 bash experiments/run_paired_grid.sh`
+continues from the last complete cell. `DRY_RUN=1` prints the step
+sequence without running anything.
 
 Seeding note: `seed.py --seed N` must be run for every seed value used in
 `--seeds`, since resource ids embed the seed (`res-<seed>-<i>`); by default

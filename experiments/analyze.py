@@ -104,7 +104,9 @@ def ac_labels(records):
     """Scenario A/C group labels present in the data, e.g. ["a", "a@faulty",
     "c", "c@faulty"]. A/C records carry extra.regime (decision 11); the
     healthy regime keeps the bare label so older files read unchanged."""
-    return sorted({r["scenario"] for r in records if r["scenario"][0] in ("a", "c") and r["scenario"][:2] != "b"})
+    # "o" (the transactional-outbox baseline, v1.2.0) is a third three-layer
+    # scenario measured by the same poller, so it is grouped the same way.
+    return sorted({r["scenario"] for r in records if r["scenario"][0] in ("a", "c", "o") and r["scenario"][:2] != "b"})
 
 
 def relabel_regimes(records):
@@ -112,7 +114,7 @@ def relabel_regimes(records):
     their non-healthy regime ("a@faulty", "a@async", "c@faulty")."""
     out = []
     for r in records:
-        if r["scenario"] in ("a", "c"):
+        if r["scenario"] in ("a", "c", "o"):
             regime = r["extra"].get("regime") or "healthy"
             if regime != "healthy":
                 r = dict(r, scenario=f'{r["scenario"]}@{regime}')
@@ -941,7 +943,7 @@ def write_report(out_dir, summary, n_records, n_errors, n_skipped, errors):
 
     # ---- Overhead
     ov = summary["overhead"]
-    ov_ac = [k for k in ov if k[0] in ("a", "c") and not k.startswith("_") and k != "c_vs_a"]
+    ov_ac = [k for k in ov if k[0] in ("a", "c", "o") and not k.startswith("_") and k != "c_vs_a"]
     if ov_ac:
         md.append("## Overhead — revoke-call latency (caller-observed)\n")
         md.append(STATS_HEADER.replace(" | timeouts |", " |").replace("|---|---|---|---|---|---|---|---|---|", "|---|---|---|---|---|---|---|---|"))
@@ -1137,7 +1139,7 @@ def make_figures(out_dir, summary):
 
     # Overhead vs scale
     ov = summary["overhead"]
-    ov_ac = [k for k in ov if k[0] in ("a", "c") and not k.startswith("_") and k != "c_vs_a"]
+    ov_ac = [k for k in ov if k[0] in ("a", "c", "o") and not k.startswith("_") and k != "c_vs_a"]
     if ov_ac:
         fig, ax = plt.subplots(figsize=(COL_W, FIG_H))
         markers = "osd^v<>"

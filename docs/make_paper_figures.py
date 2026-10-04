@@ -90,6 +90,23 @@ def drift_windows(rows, scenario_prefix="c"):
     return good, len(timeouts - invalid)
 
 
+def caller_latencies(rows, scenario):
+    """Caller-observed revoke latency per trial, over the same trial set as
+    drift_windows: a trial excluded by a guard (its flag may sit on any of
+    its three layer rows) contributes no latency either, so the figure and
+    Table VII describe the same trials."""
+    invalid, lat = set(), {}
+    for r in rows:
+        if r["scenario"] != scenario or r["layer"] is None:
+            continue
+        key = (r["scale"], r["seed"], r["resource_id"], r["principal_id"], r["t_issued"])
+        if r["extra"].get("retrievable_before_revoke") is False or r["extra"].get("poller_error"):
+            invalid.add(key)
+        if r["layer"] == "relational":
+            lat[key] = r["extra"]["revoke_latency_s"]
+    return [v for k, v in lat.items() if k not in invalid]
+
+
 def median_ci(values):
     """Median with a seeded bootstrap 95% interval, matching analyze.py."""
     arr = np.asarray(values, dtype=float)
@@ -192,17 +209,18 @@ def fig_sync_async(results, out_dir):
               f"ledger-confirmed sync {conf_s[i]}  async {conf_a[i]}")
 
 
-def _confirmed(rows):
-    """Trials whose /status said 'contained' at the moment the poller read it."""
+def _confirmed(rows, scenario="c", status_key="bridge_status"):
+    """Trials whose self-report said 'contained' at the moment the poller
+    read it: the bridge's /status for C, the outbox's own bookkeeping for O."""
     seen, yes, total = set(), 0, 0
     for r in rows:
-        if r["scenario"] != "c" or r["layer"] != "vector":
+        if r["scenario"] != scenario or r["layer"] != "vector":
             continue
         key = (r["seed"], r["t_issued"])
         if key in seen:
             continue
         seen.add(key); total += 1
-        if (r["extra"].get("bridge_status") or {}).get("contained") is True:
+        if (r["extra"].get(status_key) or {}).get("contained") is True:
             yes += 1
     return f"{yes}/{total}"
 
@@ -326,8 +344,23 @@ def fig_ablation(results, out_dir):
     """Four bars, not two: A / retry only / retry + log table / retry + ledger.
     The question the figure answers is what each added mechanism buys and
     what it costs, so every step of the ladder has to be on the axis."""
-    # Prefer the 20-seed grid; fall back to the original five-seed files.
+    # v1.2.0: the paired campaign at p = 0.30 (six bars, A/O from the first
+    # pass's file); else the 20-seed grid; else the original five-seed files.
+    outbox = None
     try:
+        noretry = load(results, "paired_p0.30_none-noretry")
+        off, logt, on = (load(results, "paired_p0.30_none"), load(results, "paired_p0.30_log"),
+                         load(results, "paired_p0.30_ledger"))
+        outbox = noretry                      # A and O ride in the first configuration's file
+        a_rows = noretry
+        nseed = len({r["seed"] for r in on if r["scenario"] == "c"})
+        paired = True
+    except MissingResults:
+        paired = False
+    if paired:
+        pass
+    elif True:
+      try:
         on, off = load(results, "faulty20_ledger"), load(results, "faulty20_none")
         logt = load(results, "faulty20_log")
         try:
@@ -335,29 +368,42 @@ def fig_ablation(results, out_dir):
         except MissingResults:
             noretry = None
         nseed = 20
-    except MissingResults:
+        a_rows = on
+      except MissingResults:
         on, off = load(results, "ablation_ledger_on"), load(results, "ablation_ledger_off")
         try:
             logt = load(results, "ablation_logtable")
         except MissingResults:
             logt = None
         nseed = 5
+        a_rows = on
 
     def a_side(rows):
         w, t = drift_windows(rows, "a")
-        lat = st.median([r["extra"]["revoke_latency_s"] for r in rows
-                         if r["scenario"].startswith("a") and r["layer"] == "relational"])
+        lat = st.median(caller_latencies(rows, "a"))
         return (st.median(w) if w else 0.0), t, lat, len(w) + t
 
     def c_side(rows):
         w, t = drift_windows(rows, "c")
-        return (st.median(w) if w else 0.0), t, timing_medians(rows)["total"], len(w) + t
+        # Caller-observed latency for every column (v1.2.0 convention, D2),
+        # the same quantity a_side reports; the bridge's own server-side
+        # total is discussed in Section VI-C1, not plotted here.
+        lat = st.median(caller_latencies(rows, "c")) if paired else timing_medians(rows)["total"]
+        return (st.median(w) if w else 0.0), t, lat, len(w) + t
+
+    def o_side(rows):
+        w, t = drift_windows(rows, "o")
+        lat = st.median(caller_latencies(rows, "o"))
+        return (st.median(w) if w else 0.0), t, lat, len(w) + t
 
     # Short tick labels; the legend below the panels spells each one out.
     # The middle column is the whole bridge minus its record: retry AND
     # concurrent propagation AND the per-record lock. Labelling it "retry"
     # would suggest retry was isolated on its own, which it was not.
-    cols = [("A", C_A, a_side(on), "n/a", "A: sequential, no retry, no record")]
+    cols = [("A", C_A, a_side(a_rows), "n/a", "A: sequential, no retry, no record")]
+    if outbox is not None:
+        cols.append(("O", "#CC79A7", o_side(outbox), _confirmed(outbox, "o", "outbox_status"),
+                     "O: transactional outbox, unbounded retry"))
     if noretry is not None:
         # Concurrency on its own, so that it can be told apart from retry.
         cols.append(("+conc", "#6E7B8B", c_side(noretry), _confirmed(noretry),
@@ -385,13 +431,19 @@ def fig_ablation(results, out_dir):
     # shrank it too, which crammed three panels into one column's width and
     # produced the overlapping titles and the panel-c ylabel printed
     # diagonally across panel b.
+    # Six bars: the per-bar labels ("44/50") are wider than a bar at 6.8 pt
+    # and ran together on the first 50-seed render, exactly as the two
+    # "19/20" labels did at v40. Smaller type and a narrower bar gap.
+    six = len(cols) > 5
+    lab_fs = 5.6 if six else 6.8
     fig, axes = plt.subplots(1, 3, figsize=(FULL_W, 2.9))
-    fig.subplots_adjust(wspace=0.52, bottom=0.34)
+    fig.subplots_adjust(wspace=0.52, bottom=0.34 if not six else 0.27)
 
     ax = axes[0]
     ax.bar(x, unbounded, color=colors, width=0.62)
     for i, v in enumerate(unbounded):
-        ax.text(i, v + 0.45, f"{v}/{denom[i]}", ha="center", fontsize=6.8)
+        lift = nseed * 0.02 + (nseed * 0.07 if (six and i % 2) else 0)
+        ax.text(i, v + lift, f"{v}/{denom[i]}", ha="center", va="bottom", fontsize=lab_fs)
     ax.set_ylim(0, max(unbounded) * 1.35 + 1); ax.set_yticks(range(0, nseed + 1, max(1, nseed // 5)))
     ax.set_ylabel("trials leaking\nwithout bound", fontsize=7)
     ax.set_title("(a) containment", fontsize=8)
@@ -410,7 +462,10 @@ def fig_ablation(results, out_dir):
     # labels at the foot of two tall bars, where they overlapped the bars and
     # each other and ran together as "19/2019/20".
     for i, (v, h) in enumerate(zip(confirmed, conf_n)):
-        ax.text(i, h + nseed * 0.035, v, ha="center", va="bottom", fontsize=6.5)
+        # Two adjacent bars of equal height put their labels side by side;
+        # stagger every other label upward so neighbours cannot touch.
+        lift = nseed * 0.02 + (nseed * 0.07 if (six and i % 2) else 0)
+        ax.text(i, h + lift, v, ha="center", va="bottom", fontsize=lab_fs)
     ax.set_ylim(0, nseed * 1.30); ax.set_yticks(range(0, nseed + 1, max(1, nseed // 5)))
     ax.set_ylabel("trials the record\ncould confirm", fontsize=7)
     ax.set_title("(c) attribution", fontsize=8)
@@ -423,7 +478,7 @@ def fig_ablation(results, out_dir):
         ax.tick_params(axis="x", pad=1)
     from matplotlib.patches import Patch
     fig.legend(handles=[Patch(color=c[1], label=c[4]) for c in cols],
-               loc="lower center", ncol=2, frameon=False, fontsize=6.4,
+               loc="lower center", ncol=2 if not six else 3, frameon=False, fontsize=6.4 if not six else 6.0,
                bbox_to_anchor=(0.5, 0.0))
     save(fig, out_dir, "fig7_ablation")
     for lab, col, (w, t, l, nv), cf, _ in cols:
